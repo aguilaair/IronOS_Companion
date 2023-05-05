@@ -19,6 +19,9 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen>
   late final AnimationController controllerSecond;
   late final Animation<double> animationSecond;
 
+  late final AnimationController controllerThird;
+  late final Animation<double> animationThird;
+
   bool isAnimationComplete = false;
   bool isAnimationComplete2 = false;
 
@@ -43,9 +46,23 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen>
       parent: controllerSecond,
       curve: Curves.easeIn,
     );
+
+    controllerThird = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+      upperBound: 1.0,
+      lowerBound: 0.5,
+      value: 1,
+    );
+    animationThird = CurvedAnimation(
+      parent: controllerThird,
+      curve: Curves.linear,
+    );
+
     // Delay the second animation by 3 seconds
     Future.delayed(const Duration(seconds: 2), () {
       controllerSecond.forward().then((value) {
+        controllerThird.reverse(from: 1);
         if (mounted) {
           setState(() {
             isAnimationComplete = true;
@@ -65,18 +82,27 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen>
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FadeTransition(
-                opacity: controllerFirst,
-                child: Text(
-                  'Welcome to',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              FadeTransition(
-                opacity: controllerSecond,
-                child: Text(
-                  'IronOS Companion',
-                  style: Theme.of(context).textTheme.titleLarge,
+              ScaleTransition(
+                scale: animationThird,
+                child: Column(
+                  children: [
+                    FadeTransition(
+                      opacity: controllerFirst,
+                      child: Text(
+                        'Welcome to',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                    ),
+                    FadeTransition(
+                      opacity: controllerSecond,
+                      child: Text(
+                        'IronOS Companion',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               AnimatedContainer(
