@@ -17,9 +17,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         primarySwatch: Colors.orange,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.orange,
+          accentColor: Colors.orangeAccent,
+          brightness: Brightness.light,
+        ),
       ),
       darkTheme: ThemeData.dark().copyWith(
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.orange,
+          accentColor: Colors.orangeAccent,
+          brightness: Brightness.dark,
+        ),
       ),
       themeMode: ThemeMode.system,
       home: const AppWrapper(),

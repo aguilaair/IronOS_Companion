@@ -127,8 +127,9 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen>
                           child: Column(children: [
                             const SizedBox(height: 20),
                             Text(
-                              'Select a device to connect to',
-                              style: Theme.of(context).textTheme.bodyLarge,
+                              'Let\'s find your device, make sure it\'s turned on and bluetooth is enabled.',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             // Rive animation
                             const SizedBox(
