@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ironos_companion/providers/iron.dart';
 
 class DeviceList extends StatefulHookConsumerWidget {
   const DeviceList({super.key});
@@ -78,7 +79,9 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                           OutlinedButton(
                             onPressed: () {
                               flutterBlue.stopScan();
-                              
+                              ref
+                                  .read(ironProvider.notifier)
+                                  .connect(snapshot.data![0].device);
                             },
                             child: const Text("Connect To Device"),
                           ),
