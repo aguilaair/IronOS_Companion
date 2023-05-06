@@ -55,7 +55,7 @@ class IronState {
     };
   }
 
-  factory IronState.fromMap(Map<String, dynamic> map) {
+  factory IronState.fromMap(Map<dynamic, dynamic> map) {
     return IronState(
       isConnected: map['isConnected'] ?? false,
       data: map['data'] != null ? IronData.fromMap(map['data']) : null,
@@ -103,20 +103,27 @@ class IronProvider extends StateNotifier<IronState> {
     // Load from Hive
     final box = Hive.box(boxName);
     if (box.isNotEmpty) {
-      state = IronState.fromMap(box.getAt(0));
+      state = IronState.fromMap(box.toMap());
     }
     // Attempt to connect to iron
     if (state.isConnected) {
       connect(state.device!);
     } else if (state.id.isNotEmpty) {
-      _blueInstance.scan(withDevices: [Guid(state.id)]);
       // Listen for iron
       _blueInstance.scanResults.listen((event) {
-        if (event.isNotEmpty) {
+        if (event.isNotEmpty && !state.isConnected) {
           connect(event.first.device);
         }
       });
     }
+    startScan();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    state.device?.disconnect();
+    super.dispose();
   }
 
   static const boxName = "iron";
@@ -129,7 +136,17 @@ class IronProvider extends StateNotifier<IronState> {
     state = newState;
     // Save to Hive
     final box = Hive.box(boxName);
-    box.putAt(0, newState.toMapStatic());
+    box.putAll(state.toMapStatic());
+  }
+
+  Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
+
+  void startScan() {
+    _blueInstance.stopScan();
+    _blueInstance.startScan(withServices: [
+      Guid("9eae1000-9d0d-48c5-aa55-33e27f9bc533"),
+      Guid("f6d80000-5a10-4eba-aa55-33e27f9bc533")
+    ]);
   }
 
   Future<bool> connect(BluetoothDevice device) async {
@@ -141,6 +158,9 @@ class IronProvider extends StateNotifier<IronState> {
       name: device.name,
       id: device.id.id,
     );
+
+    // Update state
+    update(state);
 
     _timer?.cancel();
     // Discover services
@@ -161,94 +181,87 @@ class IronProvider extends StateNotifier<IronState> {
   }
 
   Future<void> poll(BluetoothService stateService) async {
-    (timer) async {
-      // Poll characteristics
-      final characteristics = stateService.characteristics.sublist(0, 1);
+    // Poll characteristics
+    print("Polling");
+    final characteristics = stateService.characteristics.sublist(0, 1);
 
-      final List<int> chars = [];
+    final List<int> chars = [];
 
-      for (final characteristic in characteristics) {
-        final value = await characteristic.read();
-        chars.addAll(value);
-      }
+    for (final characteristic in characteristics) {
+      final value = await characteristic.read();
+      chars.addAll(value);
+    }
 
-      final temp =
-          chars[0] + (chars[1] << 8) + (chars[2] << 16) + (chars[3] << 24);
+    final temp =
+        chars[0] + (chars[1] << 8) + (chars[2] << 16) + (chars[3] << 24);
 
-      final setpoint =
-          chars[4] + (chars[5] << 8) + (chars[6] << 16) + (chars[7] << 24);
+    final setpoint =
+        chars[4] + (chars[5] << 8) + (chars[6] << 16) + (chars[7] << 24);
 
-      final inputVolts =
-          (chars[8] + (chars[9] << 8) + (chars[10] << 16) + (chars[11] << 24)) /
-              10;
+    final inputVolts =
+        (chars[8] + (chars[9] << 8) + (chars[10] << 16) + (chars[11] << 24)) /
+            10;
 
-      final handleTemp = (chars[12] +
-              (chars[13] << 8) +
-              (chars[14] << 16) +
-              (chars[15] << 24)) /
-          10;
+    final handleTemp =
+        (chars[12] + (chars[13] << 8) + (chars[14] << 16) + (chars[15] << 24)) /
+            10;
 
-      final pwsAsPwm =
-          chars[16] + (chars[17] << 8) + (chars[18] << 16) + (chars[19] << 24);
+    final pwsAsPwm =
+        chars[16] + (chars[17] << 8) + (chars[18] << 16) + (chars[19] << 24);
 
-      final powerSrc =
-          chars[20] + (chars[21] << 8) + (chars[22] << 16) + (chars[23] << 24);
+    final powerSrc =
+        chars[20] + (chars[21] << 8) + (chars[22] << 16) + (chars[23] << 24);
 
-      final tipRes =
-          chars[24] + (chars[25] << 8) + (chars[26] << 16) + (chars[27] << 24);
+    final tipRes =
+        chars[24] + (chars[25] << 8) + (chars[26] << 16) + (chars[27] << 24);
 
-      final uptime = (chars[28] +
-              (chars[29] << 8) +
-              (chars[30] << 16) +
-              (chars[31] << 24)) /
-          10;
+    final uptime =
+        (chars[28] + (chars[29] << 8) + (chars[30] << 16) + (chars[31] << 24)) /
+            10;
 
-      final lastMovement = (chars[32] +
-              (chars[33] << 8) +
-              (chars[34] << 16) +
-              (chars[35] << 24)) /
-          10;
+    final lastMovement =
+        (chars[32] + (chars[33] << 8) + (chars[34] << 16) + (chars[35] << 24)) /
+            10;
 
-      final maxTemp =
-          chars[36] + (chars[37] << 8) + (chars[38] << 16) + (chars[39] << 24);
+    final maxTemp =
+        chars[36] + (chars[37] << 8) + (chars[38] << 16) + (chars[39] << 24);
 
-      final rawTipMicroV =
-          chars[40] + (chars[41] << 8) + (chars[42] << 16) + (chars[43] << 24);
+    final rawTipMicroV =
+        chars[40] + (chars[41] << 8) + (chars[42] << 16) + (chars[43] << 24);
 
-      final hallSensor =
-          chars[44] + (chars[45] << 8) + (chars[46] << 16) + (chars[47] << 24);
+    final hallSensor =
+        chars[44] + (chars[45] << 8) + (chars[46] << 16) + (chars[47] << 24);
 
-      final opMode =
-          chars[48] + (chars[49] << 8) + (chars[50] << 16) + (chars[51] << 24);
+    final opMode =
+        chars[48] + (chars[49] << 8) + (chars[50] << 16) + (chars[51] << 24);
 
-      final watts = (chars[52] +
-              (chars[53] << 8) +
-              (chars[54] << 16) +
-              (chars[55] << 24)) /
-          10;
+    final watts =
+        (chars[52] + (chars[53] << 8) + (chars[54] << 16) + (chars[55] << 24)) /
+            10;
 
-      final ironData = IronData(
-        currentTemp: temp,
-        setpoint: setpoint,
-        inputVoltage: inputVolts,
-        handleTemp: handleTemp,
-        power: pwsAsPwm,
-        powerSrc: powerSrc,
-        tipResistance: tipRes,
-        uptime: uptime,
-        lastMovementTime: lastMovement,
-        maxTemp: maxTemp,
-        rawTip: rawTipMicroV,
-        hallSensor: hallSensor,
-        currentMode: opMode,
-        estimatedWattage: watts,
-      );
+    final ironData = IronData(
+      currentTemp: temp,
+      setpoint: setpoint,
+      inputVoltage: inputVolts,
+      handleTemp: handleTemp,
+      power: pwsAsPwm,
+      powerSrc: powerSrc,
+      tipResistance: tipRes,
+      uptime: uptime,
+      lastMovementTime: lastMovement,
+      maxTemp: maxTemp,
+      rawTip: rawTipMicroV,
+      hallSensor: hallSensor,
+      currentMode: opMode,
+      estimatedWattage: watts,
+    );
 
-      // Update state
-      state = state.copyWith(
-        data: ironData,
-      );
-    };
+    // Update state
+    state = state.copyWith(
+      data: ironData,
+    );
+
+    print(ironData);
   }
 }
 
