@@ -111,7 +111,9 @@ class IronProvider extends StateNotifier<IronState> {
     } else if (state.id.isNotEmpty) {
       // Listen for iron
       _blueInstance.scanResults.listen((event) {
-        if (event.isNotEmpty && !state.isConnected) {
+        if (event.isNotEmpty &&
+            !state.isConnected &&
+            event.first.device.id.id == state.id) {
           connect(event.first.device);
         }
       });
