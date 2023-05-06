@@ -143,12 +143,23 @@ class IronProvider extends StateNotifier<IronState> {
 
   Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
 
+  bool _isScanning = false;
+
   void startScan() {
-    _blueInstance.stopScan();
+    // Check if scanning
+    if (_isScanning) return;
     _blueInstance.startScan(withServices: [
       Guid("9eae1000-9d0d-48c5-aa55-33e27f9bc533"),
       Guid("f6d80000-5a10-4eba-aa55-33e27f9bc533")
     ]);
+    _isScanning = true;
+  }
+
+  void stopScan() {
+    // Check if scanning
+    if (!_isScanning) return;
+    _blueInstance.stopScan();
+    _isScanning = false;
   }
 
   Future<bool> connect(BluetoothDevice device) async {
@@ -184,7 +195,6 @@ class IronProvider extends StateNotifier<IronState> {
 
   Future<void> poll(BluetoothService stateService) async {
     // Poll characteristics
-    print("Polling");
     final characteristics = stateService.characteristics.sublist(0, 1);
 
     final List<int> chars = [];
@@ -262,8 +272,6 @@ class IronProvider extends StateNotifier<IronState> {
     state = state.copyWith(
       data: ironData,
     );
-
-    print(ironData);
   }
 }
 

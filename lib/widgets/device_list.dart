@@ -22,7 +22,6 @@ class _DeviceListState extends ConsumerState<DeviceList> {
     return StreamBuilder<List<ScanResult>>(
         stream: ironP.scanResults,
         builder: (context, snapshot) {
-          print(snapshot);
           final numDev = snapshot.data?.length ?? 0;
           if (numDev == 0) {
             return Column(
