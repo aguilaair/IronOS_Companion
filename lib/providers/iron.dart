@@ -8,12 +8,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class IronState {
   bool isConnected;
   IronData? data;
+  BluetoothDevice? device;
   String name;
   String id;
 
   IronState({
     this.isConnected = false,
     this.data,
+    this.device,
     this.name = "",
     this.id = "",
   });
@@ -31,12 +33,14 @@ class IronState {
   IronState copyWith({
     bool? isConnected,
     IronData? data,
+    BluetoothDevice? device,
     String? name,
     String? id,
   }) {
     return IronState(
       isConnected: isConnected ?? this.isConnected,
       data: data ?? this.data,
+      device: device ?? this.device,
       name: name ?? this.name,
       id: id ?? this.id,
     );
@@ -67,7 +71,7 @@ class IronState {
 
   @override
   String toString() {
-    return 'IronState(isConnected: $isConnected, data: $data, name: $name, id: $id)';
+    return 'IronState(isConnected: $isConnected, data: $data, device: $device, name: $name, id: $id)';
   }
 
   @override
@@ -77,13 +81,18 @@ class IronState {
     return other is IronState &&
         other.isConnected == isConnected &&
         other.data == data &&
+        other.device == device &&
         other.name == name &&
         other.id == id;
   }
 
   @override
   int get hashCode {
-    return isConnected.hashCode ^ data.hashCode ^ name.hashCode ^ id.hashCode;
+    return isConnected.hashCode ^
+        data.hashCode ^
+        device.hashCode ^
+        name.hashCode ^
+        id.hashCode;
   }
 }
 
@@ -95,6 +104,18 @@ class IronProvider extends StateNotifier<IronState> {
     final box = Hive.box(boxName);
     if (box.isNotEmpty) {
       state = IronState.fromMap(box.getAt(0));
+    }
+    // Attempt to connect to iron
+    if (state.isConnected) {
+      connect(state.device!);
+    } else if (state.id.isNotEmpty) {
+      _blueInstance.scan(withDevices: [Guid(state.id)]);
+      // Listen for iron
+      _blueInstance.scanResults.listen((event) {
+        if (event.isNotEmpty) {
+          connect(event.first.device);
+        }
+      });
     }
   }
 
@@ -114,6 +135,13 @@ class IronProvider extends StateNotifier<IronState> {
   Future<bool> connect(BluetoothDevice device) async {
     // Connect to iron, BLE
     await device.connect();
+
+    state = state.copyWith(
+      isConnected: true,
+      name: device.name,
+      id: device.id.id,
+    );
+
     _timer?.cancel();
     // Discover services
     final services = await device.discoverServices();
@@ -124,7 +152,16 @@ class IronProvider extends StateNotifier<IronState> {
 
     // Setup timer for polling characteristics
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) async {
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 1000),
+      (_) => poll(stateService),
+    );
+
+    return true;
+  }
+
+  Future<void> poll(BluetoothService stateService) async {
+    (timer) async {
       // Poll characteristics
       final characteristics = stateService.characteristics.sublist(0, 1);
 
@@ -208,12 +245,10 @@ class IronProvider extends StateNotifier<IronState> {
       );
 
       // Update state
-      state.copyWith(data: ironData);
-
-      print("Iron data: $ironData");
-    });
-
-    return true;
+      state = state.copyWith(
+        data: ironData,
+      );
+    };
   }
 }
 
