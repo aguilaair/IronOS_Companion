@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ironos_companion/providers/iron.dart';
+import 'package:ironos_companion/screens/solder.dart';
 
 class DeviceList extends StatefulHookConsumerWidget {
   const DeviceList({super.key});
@@ -47,11 +48,17 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     OutlinedButton(
-                      onPressed: () {
-                        flutterBlue.stopScan();
-                        ref
+                      onPressed: () async {
+                        await ref
                             .read(ironProvider.notifier)
                             .connect(snapshot.data![0].device);
+                        if (mounted) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const SolderPage(),
+                            ),
+                          );
+                        }
                       },
                       child: const Text("Connect To Device"),
                     ),
@@ -73,8 +80,17 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                       subtitle: Text(device.id.toString()),
                       trailing: IconButton(
                         icon: const Icon(Icons.bluetooth_connected),
-                        onPressed: () {
-                          flutterBlue.stopScan();
+                        onPressed: () async {
+                          await ref
+                              .read(ironProvider.notifier)
+                              .connect(snapshot.data![0].device);
+                          if (mounted) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => const SolderPage(),
+                              ),
+                            );
+                          }
                         },
                       ),
                     );

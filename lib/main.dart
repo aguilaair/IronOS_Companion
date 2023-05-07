@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ironos_companion/providers/iron.dart';
 import 'package:ironos_companion/screens/devices.dart';
+import 'package:ironos_companion/screens/solder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,38 +18,43 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'IronOS Companion',
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.orange,
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.orange,
-          accentColor: Colors.orangeAccent,
-          brightness: Brightness.light,
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'IronOS Companion',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.orange,
+            accentColor: Colors.orangeAccent,
+            brightness: Brightness.light,
+            backgroundColor: Colors.orange.shade50,
+          ),
         ),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.orange,
-          accentColor: Colors.orangeAccent,
-          brightness: Brightness.dark,
+        darkTheme: ThemeData.dark().copyWith(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.orange,
+            accentColor: Colors.orangeAccent,
+            brightness: Brightness.dark,
+          ),
         ),
+        themeMode: ThemeMode.system,
+        home: const AppWrapper(),
       ),
-      themeMode: ThemeMode.system,
-      home: const AppWrapper(),
     );
   }
 }
 
-class AppWrapper extends StatelessWidget {
+class AppWrapper extends ConsumerWidget {
   const AppWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const ProviderScope(
-      child: DeviceSelectionScreen(),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ironP = ref.read(ironProvider);
+    if (ironP.id.isEmpty) {
+      return const DeviceSelectionScreen();
+    } else {
+      return const SolderPage();
+    }
   }
 }

@@ -111,6 +111,10 @@ class IronProvider extends StateNotifier<IronState> {
     } else if (state.id.isNotEmpty) {
       // Listen for iron
       _blueInstance.scanResults.listen((event) {
+        if (event.isNotEmpty) {
+          // Add to devices
+          _devices.addAll(event.map((e) => e.device));
+        }
         if (event.isNotEmpty &&
             !state.isConnected &&
             event.first.device.id.id == state.id) {
@@ -118,14 +122,48 @@ class IronProvider extends StateNotifier<IronState> {
         }
       });
     }
-    startScan();
+
+    int count = 0;
+    // Await Bluetooth ready
+    Timer.periodic(
+      const Duration(milliseconds: 50),
+      (timer) async {
+        count++;
+        if (count > 10) {
+          timer.cancel();
+        }
+        if (await _blueInstance.isOn) {
+          timer.cancel();
+          startScan();
+        }
+      },
+    );
   }
+
+  List<BluetoothDevice> _devices = [];
 
   @override
   void dispose() {
     _timer?.cancel();
     state.device?.disconnect();
     super.dispose();
+  }
+
+  void resetNewDevice() {
+    state.device?.disconnect();
+    _timer?.cancel();
+
+    state = IronState(
+      isConnected: false,
+      data: null,
+      device: null,
+      name: "",
+      id: "",
+    );
+
+    update(state);
+
+    startScan();
   }
 
   static const boxName = "iron";
@@ -139,6 +177,18 @@ class IronProvider extends StateNotifier<IronState> {
     // Save to Hive
     final box = Hive.box(boxName);
     box.putAll(state.toMapStatic());
+  }
+
+  void attemptReconnect() {
+    if (state.isConnected) return;
+    if (state.id.isEmpty) return;
+    final device = _devices.firstWhere(
+      (element) => element.id.id == state.id,
+      orElse: () => BluetoothDevice.fromId(""),
+    );
+    if (device.id.id.isNotEmpty) {
+      connect(device);
+    }
   }
 
   Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
@@ -166,6 +216,8 @@ class IronProvider extends StateNotifier<IronState> {
     // Connect to iron, BLE
     await device.connect();
 
+    stopScan();
+
     state = state.copyWith(
       isConnected: true,
       name: device.name,
@@ -190,7 +242,26 @@ class IronProvider extends StateNotifier<IronState> {
       (_) => poll(stateService),
     );
 
+    // Listen for disconnect
+    device.state.listen((event) {
+      if (event == BluetoothDeviceState.disconnected) {
+        state = state.copyWith(
+          isConnected: false,
+        );
+        _timer?.cancel();
+      }
+    });
+
     return true;
+  }
+
+  Future<void> disconnect() async {
+    // Disconnect from iron
+    await state.device?.disconnect();
+    state = state.copyWith(
+      isConnected: false,
+    );
+    _timer?.cancel();
   }
 
   Future<void> poll(BluetoothService stateService) async {
@@ -199,9 +270,15 @@ class IronProvider extends StateNotifier<IronState> {
 
     final List<int> chars = [];
 
-    for (final characteristic in characteristics) {
-      final value = await characteristic.read();
-      chars.addAll(value);
+    try {
+      for (final characteristic in characteristics) {
+        final value = await characteristic.read();
+        chars.addAll(value);
+      }
+    } catch (e) {
+      // Connection lost, disconnect
+      disconnect();
+      return;
     }
 
     final temp =
@@ -275,7 +352,8 @@ class IronProvider extends StateNotifier<IronState> {
   }
 }
 
-final ironProvider = StateNotifierProvider((ref) => IronProvider());
+final ironProvider =
+    StateNotifierProvider<IronProvider, IronState>((ref) => IronProvider());
 
 /*
       uint32_t bulkData[] = {
