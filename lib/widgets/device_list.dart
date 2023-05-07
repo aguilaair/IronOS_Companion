@@ -16,6 +16,8 @@ class _DeviceListState extends ConsumerState<DeviceList> {
 
   Future<dynamic>? scanFuture;
 
+  bool inProgress = false;
+
   @override
   Widget build(BuildContext context) {
     final ironP = ref.watch(ironProvider.notifier);
@@ -47,21 +49,26 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    OutlinedButton(
-                      onPressed: () async {
-                        await ref
-                            .read(ironProvider.notifier)
-                            .connect(snapshot.data![0].device);
-                        if (mounted) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const SolderPage(),
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text("Connect To Device"),
-                    ),
+                    !inProgress
+                        ? OutlinedButton(
+                            onPressed: () async {
+                              setState(() {
+                                inProgress = true;
+                              });
+                              await ref
+                                  .read(ironProvider.notifier)
+                                  .connect(snapshot.data![0].device);
+                              if (mounted) {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => const SolderPage(),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text("Connect To Device"),
+                          )
+                        : const CircularProgressIndicator(),
                   ],
                 ),
               ],
@@ -78,21 +85,26 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                     return ListTile(
                       title: Text(device.name),
                       subtitle: Text(device.id.toString()),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.bluetooth_connected),
-                        onPressed: () async {
-                          await ref
-                              .read(ironProvider.notifier)
-                              .connect(snapshot.data![0].device);
-                          if (mounted) {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => const SolderPage(),
-                              ),
-                            );
-                          }
-                        },
-                      ),
+                      trailing: !inProgress
+                          ? IconButton(
+                              icon: const Icon(Icons.bluetooth_connected),
+                              onPressed: () async {
+                                setState(() {
+                                  inProgress = true;
+                                });
+                                await ref
+                                    .read(ironProvider.notifier)
+                                    .connect(snapshot.data![0].device);
+                                if (mounted) {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => const SolderPage(),
+                                    ),
+                                  );
+                                }
+                              },
+                            )
+                          : const CircularProgressIndicator(),
                     );
                   },
                 ),

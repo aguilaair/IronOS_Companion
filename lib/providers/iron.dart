@@ -105,6 +105,21 @@ class IronProvider extends StateNotifier<IronState> {
     if (box.isNotEmpty) {
       state = IronState.fromMap(box.toMap());
     }
+
+    _blueInstance.connectedDevices.then((value) async {
+      if (value.isNotEmpty) {
+        for (final device in value) {
+          if (device.id.id == state.id) {
+            // Connect
+            connect(device);
+            break;
+          } else {
+            // Disconnect
+            device.disconnect();
+          }
+        }
+      }
+    });
     // Attempt to connect to iron
     if (state.isConnected) {
       connect(state.device!);

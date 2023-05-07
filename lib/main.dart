@@ -29,6 +29,12 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.light,
             backgroundColor: Colors.orange.shade50,
           ),
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: ZoomPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
+          ),
         ),
         darkTheme: ThemeData.dark().copyWith(
           useMaterial3: true,
@@ -36,6 +42,12 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.orange,
             accentColor: Colors.orangeAccent,
             brightness: Brightness.dark,
+          ),
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: ZoomPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
           ),
         ),
         themeMode: ThemeMode.system,
