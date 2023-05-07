@@ -111,10 +111,6 @@ class IronProvider extends StateNotifier<IronState> {
     } else if (state.id.isNotEmpty) {
       // Listen for iron
       _blueInstance.scanResults.listen((event) {
-        if (event.isNotEmpty) {
-          // Add to devices
-          _devices.addAll(event.map((e) => e.device));
-        }
         if (event.isNotEmpty &&
             !state.isConnected &&
             event.first.device.id.id == state.id) {
@@ -140,8 +136,6 @@ class IronProvider extends StateNotifier<IronState> {
     );
   }
 
-  List<BluetoothDevice> _devices = [];
-
   @override
   void dispose() {
     _timer?.cancel();
@@ -149,9 +143,8 @@ class IronProvider extends StateNotifier<IronState> {
     super.dispose();
   }
 
-  void resetNewDevice() {
-    state.device?.disconnect();
-    _timer?.cancel();
+  Future<void> resetNewDevice() async {
+    await disconnect();
 
     state = IronState(
       isConnected: false,
@@ -182,13 +175,8 @@ class IronProvider extends StateNotifier<IronState> {
   void attemptReconnect() {
     if (state.isConnected) return;
     if (state.id.isEmpty) return;
-    final device = _devices.firstWhere(
-      (element) => element.id.id == state.id,
-      orElse: () => BluetoothDevice.fromId(""),
-    );
-    if (device.id.id.isNotEmpty) {
-      connect(device);
-    }
+
+    connect(state.device!);
   }
 
   Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
@@ -222,6 +210,7 @@ class IronProvider extends StateNotifier<IronState> {
       isConnected: true,
       name: device.name,
       id: device.id.id,
+      device: device,
     );
 
     // Update state
@@ -256,12 +245,11 @@ class IronProvider extends StateNotifier<IronState> {
   }
 
   Future<void> disconnect() async {
-    // Disconnect from iron
-    await state.device?.disconnect();
+    _timer?.cancel();
+    await state.device!.disconnect();
     state = state.copyWith(
       isConnected: false,
     );
-    _timer?.cancel();
   }
 
   Future<void> poll(BluetoothService stateService) async {
