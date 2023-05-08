@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -178,6 +180,109 @@ class IronProvider extends StateNotifier<IronState> {
 
   final _blueInstance = FlutterBluePlus.instance;
 
+  final List<IronData> _history = [];
+
+  LineChartData get chartData {
+    final List<FlSpot> spots = [];
+    final List<FlSpot> powerSpots = [];
+    final List<FlSpot> setpointSpots = [];
+    for (int i = 0; i < _history.length; i++) {
+      spots.add(FlSpot(i.toDouble(), _history[i].currentTemp.toDouble()));
+      powerSpots
+          .add(FlSpot(i.toDouble(), _history[i].estimatedWattage.toDouble()));
+      // Only add setpoint if the power is on
+      if (_history[i].currentMode != 0) {
+        setpointSpots
+            .add(FlSpot(i.toDouble(), _history[i].setpoint.toDouble()));
+      }
+    }
+    return LineChartData(
+      minY: 0,
+      maxY: state.data?.setpoint.toDouble(),
+      lineTouchData: LineTouchData(enabled: true),
+      gridData: FlGridData(
+        show: false,
+      ),
+      titlesData: FlTitlesData(
+        show: false,
+      ),
+      borderData: FlBorderData(
+        show: false,
+      ),
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          barWidth: 3,
+          show: true,
+          dotData: FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: [
+                Colors.red.withOpacity(0.1),
+                Colors.blue.withOpacity(0.1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          gradient: const LinearGradient(
+            colors: [
+              Colors.red,
+              Colors.blue,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        // Power
+        LineChartBarData(
+          spots: powerSpots,
+          isCurved: true,
+          barWidth: 3,
+          show: true,
+          dotData: FlDotData(show: false),
+          gradient: const LinearGradient(
+            colors: [
+              Colors.green,
+              Colors.greenAccent,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        // Setpoint
+        LineChartBarData(
+          spots: setpointSpots,
+          isCurved: true,
+          barWidth: 2,
+          show: true,
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: [
+                Colors.orange.withOpacity(0.1),
+                Colors.orangeAccent.withOpacity(0.1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          dotData: FlDotData(show: false),
+          gradient: const LinearGradient(
+            colors: [
+              Colors.orange,
+              Colors.orangeAccent,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+      ],
+    );
+  }
+
   Timer? _timer;
 
   void update(IronState newState) {
@@ -352,6 +457,12 @@ class IronProvider extends StateNotifier<IronState> {
     state = state.copyWith(
       data: ironData,
     );
+
+    // Add to history, ensure we don't have more than 60 entries
+    _history.add(ironData);
+    if (_history.length > 60) {
+      _history.removeAt(0);
+    }
   }
 }
 
