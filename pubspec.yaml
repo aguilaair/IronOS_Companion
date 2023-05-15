@@ -43,6 +43,7 @@ dependencies:
   permission_handler: ^10.2.0
   fl_chart: ^0.62.0
   hive_flutter: ^1.1.0
+  sleek_circular_slider: ^2.0.1
 
 dev_dependencies:
   flutter_test:
