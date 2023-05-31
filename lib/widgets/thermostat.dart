@@ -17,7 +17,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
 
   @override
   Widget build(BuildContext context) {
-    final ironN = ref.watch(ironProvider.notifier);
+    //final ironN = ref.watch(ironProvider.notifier);
     final ironP = ref.watch(ironProvider);
     isOn = ironP.data?.currentMode != 0;
     return Padding(
@@ -56,7 +56,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
         min: 0,
         initialValue: ironP.data?.setpoint.toDouble() ?? 0,
         onChange: (double value) {
-          print(value);
+          //print(value);
         },
         onChangeEnd: (value) {
           HapticFeedback.heavyImpact();

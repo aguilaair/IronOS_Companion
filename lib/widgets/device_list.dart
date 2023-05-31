@@ -27,8 +27,8 @@ class _DeviceListState extends ConsumerState<DeviceList> {
         builder: (context, snapshot) {
           final numDev = snapshot.data?.length ?? 0;
           if (numDev == 0) {
-            return Column(
-              children: const [
+            return const Column(
+              children: [
                 Text("No devices found"),
               ],
             );

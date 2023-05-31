@@ -21,12 +21,12 @@ class _SolderPageState extends ConsumerState<SolderPage> {
     return Scaffold(
       appBar: const DeviceAppBar(),
       body: !ironP.isConnected
-          ? SizedBox(
+          ? const SizedBox(
               width: double.infinity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
+                children: [
                   Text("Connecting to device..."),
                   SizedBox(
                     height: 10,
