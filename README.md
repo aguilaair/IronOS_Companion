@@ -1,7 +1,7 @@
 # IronOS Companion
 
 
-![IronOS Companion](https://raw.githubusercontent.com/aguilaair/IronOS_Companion/master/marketing/Logo%20Beta.svg)
+![IronOS Companion](https://raw.githubusercontent.com/aguilaair/IronOS_Companion/main/marketing/Logo%20Beta.svg)
 
 Welcome to the IronOS Companion repository. This repository contains the source code for the IronOS Companion application. IronOS Companion is a mobile application that allows you to control your IronOS-powered devices from your phone.
 

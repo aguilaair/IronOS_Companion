@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -113,11 +114,8 @@ class IronProvider extends StateNotifier<IronState> {
         for (final device in value) {
           if (device.id.id == state.id) {
             // Connect
-            connect(device);
+            connect(device, connect: false);
             break;
-          } else {
-            // Disconnect
-            device.disconnect();
           }
         }
       }
@@ -302,14 +300,24 @@ class IronProvider extends StateNotifier<IronState> {
   Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
 
   bool _isScanning = false;
+  List<BluetoothService>? _services;
+
+  static const _tempSetUUID = "f6d70000-5a10-4eba-aa55-33e27f9bc533";
+  static const _settingsServiceUUID = "f6d80000-5a10-4eba-aa55-33e27f9bc533";
+  static const _saveSettingsUUID = "f6d7ffff-5a10-4eba-aa55-33e27f9bc533";
+  static const _bulkDataUUID = "9eae1000-9d0d-48c5-aa55-33e27f9bc533";
+  static const _bulkDataSecUUID = "9eae1001-9d0d-48c5-aa55-33e27f9bc533";
 
   void startScan() {
     // Check if scanning
     if (_isScanning) return;
     _blueInstance.startScan(withServices: [
-      Guid("9eae1000-9d0d-48c5-aa55-33e27f9bc533"),
-      Guid("f6d80000-5a10-4eba-aa55-33e27f9bc533")
+      Guid(_bulkDataUUID), // Bulk data
+      Guid(_settingsServiceUUID) // Settings
     ]);
+    _blueInstance.scanResults.listen((event) {
+      print("Found ${event.length} devices");
+    });
     _isScanning = true;
   }
 
@@ -320,9 +328,10 @@ class IronProvider extends StateNotifier<IronState> {
     _isScanning = false;
   }
 
-  Future<bool> connect(BluetoothDevice device) async {
-    // Connect to iron, BLE
-    await device.connect();
+  Future<bool> connect(BluetoothDevice device, {bool connect = true}) async {
+    if (connect) {
+      await device.connect();
+    }
 
     stopScan();
 
@@ -338,11 +347,11 @@ class IronProvider extends StateNotifier<IronState> {
 
     _timer?.cancel();
     // Discover services
-    final services = await device.discoverServices();
+    _services = await device.discoverServices();
 
-    final stateService = services.firstWhere((element) =>
-        element.uuid.toString() == "9eae1000-9d0d-48c5-aa55-33e27f9bc533" ||
-        element.uuid.toString() == "9eae1001-9d0d-48c5-aa55-33e27f9bc533");
+    final stateService = _services!.firstWhere((element) =>
+        element.uuid.toString() == _bulkDataUUID ||
+        element.uuid.toString() == _bulkDataSecUUID);
 
     // Setup timer for polling characteristics
     _timer?.cancel();
@@ -463,6 +472,42 @@ class IronProvider extends StateNotifier<IronState> {
     if (_history.length > 60) {
       _history.removeAt(0);
     }
+  }
+
+  // Set data - write to f6d7ffff-5a10-4eba-aa55-33e27f9bc533 value 1 to save settings
+  Future<void> setData(IronData data) async {
+    state = state.copyWith(data: data);
+
+    // Get service
+    final service = _services!.firstWhere(
+        (element) => element.uuid.toString() == _settingsServiceUUID);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics
+        .firstWhere((element) => element.uuid.toString() == _tempSetUUID);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, data.setpoint, Endian.little);
+
+    await tempCharacteristic.write(view.buffer.asUint8List(),
+        withoutResponse: true);
+  }
+
+  Future<void> saveToFlash() async {
+    final service = _services!.firstWhere(
+        (element) => element.uuid.toString() == _settingsServiceUUID);
+
+    // Get characteristic for save
+    final saveCharacteristic = service.characteristics
+        .firstWhere((element) => element.uuid.toString() == _saveSettingsUUID);
+
+    // Set to 1 to save
+    ByteData view = ByteData(1);
+    view.setUint8(0, 1);
+
+    await saveCharacteristic.write(view.buffer.asUint8List(),
+        withoutResponse: true);
   }
 }
 

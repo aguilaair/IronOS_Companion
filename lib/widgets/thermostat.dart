@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,12 +19,13 @@ class _ThermostatState extends ConsumerState<Thermostat> {
 
   @override
   Widget build(BuildContext context) {
-    //final ironN = ref.watch(ironProvider.notifier);
+    final ironN = ref.watch(ironProvider.notifier);
     final ironP = ref.watch(ironProvider);
     isOn = ironP.data?.currentMode != 0;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SleekCircularSlider(
+        key: Key("thermostat"),
         appearance: CircularSliderAppearance(
           customColors: CustomSliderColors(
             trackColor: Colors.grey[300],
@@ -50,16 +53,15 @@ class _ThermostatState extends ConsumerState<Thermostat> {
           startAngle: 130,
           angleRange: 280,
           size: 300,
-          animationEnabled: true,
+          animationEnabled: false,
         ),
-        max: ironP.data?.maxTemp.toDouble() ?? 400,
+        max: max(ironP.data?.maxTemp.toDouble() ?? 400,
+            ironP.data?.setpoint.toDouble() ?? 0),
         min: 0,
         initialValue: ironP.data?.setpoint.toDouble() ?? 0,
-        onChange: (double value) {
-          //print(value);
-        },
         onChangeEnd: (value) {
           HapticFeedback.heavyImpact();
+          ironN.setData(ironP.data!.copyWith(setpoint: value.toInt()));
         },
         onChangeStart: (value) {
           HapticFeedback.lightImpact();
@@ -123,9 +125,21 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 padding: const EdgeInsets.all(15),
                               ),
                               onPressed: () {
+                                int newTemp = ironP.data!.setpoint - 2;
+                                if (newTemp <= 0) {
+                                  newTemp = 0;
+                                }
+                                ironN.setData(
+                                    ironP.data!.copyWith(setpoint: newTemp));
                                 HapticFeedback.mediumImpact();
                               },
                               onLongPress: () {
+                                int newTemp = ironP.data!.setpoint - 10;
+                                if (newTemp <= 0) {
+                                  newTemp = 0;
+                                }
+                                ironN.setData(
+                                    ironP.data!.copyWith(setpoint: newTemp));
                                 HapticFeedback.heavyImpact();
                               },
                               child: Icon(
@@ -143,10 +157,9 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                     : Colors.blueGrey.withOpacity(0.6),
                               ),
                               onPressed: () {
+                                ironN.setData(ironP.data!
+                                    .copyWith(currentMode: isOn ? 0 : 1));
                                 HapticFeedback.lightImpact();
-                                setState(() {
-                                  isOn = !isOn;
-                                });
                               },
                               child: !isOn
                                   ? const Icon(
@@ -164,9 +177,21 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 padding: const EdgeInsets.all(15),
                               ),
                               onPressed: () {
+                                int newTemp = ironP.data!.setpoint + 2;
+                                if (newTemp >= ironP.data!.maxTemp) {
+                                  newTemp = ironP.data!.maxTemp;
+                                }
+                                ironN.setData(
+                                    ironP.data!.copyWith(setpoint: newTemp));
                                 HapticFeedback.mediumImpact();
                               },
                               onLongPress: () {
+                                int newTemp = ironP.data!.setpoint + 10;
+                                if (newTemp >= ironP.data!.maxTemp) {
+                                  newTemp = ironP.data!.maxTemp;
+                                }
+                                ironN.setData(
+                                    ironP.data!.copyWith(setpoint: newTemp));
                                 HapticFeedback.heavyImpact();
                               },
                               child: Icon(
