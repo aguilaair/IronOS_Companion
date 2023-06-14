@@ -25,7 +25,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SleekCircularSlider(
-        key: Key("thermostat"),
+        key: const Key("thermostat"),
         appearance: CircularSliderAppearance(
           customColors: CustomSliderColors(
             trackColor: Colors.grey[300],

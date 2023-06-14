@@ -11,7 +11,7 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.0.4):
     - Flutter
-  - Protobuf (3.22.3)
+  - Protobuf (3.23.2)
   - rive_common (0.0.1):
     - Flutter
 
@@ -43,7 +43,7 @@ SPEC CHECKSUMS:
   flutter_blue_plus: 6787777145d615de01828f3a9fa423c3c702f0b3
   path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
-  Protobuf: d03938d5f7e974a97964fb0567771e36fbe9ecce
+  Protobuf: 5df4e9d2abd535fb675c68d171f6bc87983d27a6
   rive_common: 60ae7896ab40f9513974f36f015de33f70d2c5c5
 
 PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3

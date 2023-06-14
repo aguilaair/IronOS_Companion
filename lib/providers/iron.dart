@@ -188,6 +188,7 @@ class IronProvider extends StateNotifier<IronState> {
     final List<FlSpot> spots = [];
     final List<FlSpot> powerSpots = [];
     final List<FlSpot> setpointSpots = [];
+    int currTMax = state.data?.currentTemp ?? 0;
     for (int i = 0; i < _history.length; i++) {
       spots.add(FlSpot(i.toDouble(), _history[i].currentTemp.toDouble()));
       powerSpots
@@ -197,8 +198,19 @@ class IronProvider extends StateNotifier<IronState> {
         setpointSpots
             .add(FlSpot(i.toDouble(), _history[i].setpoint.toDouble()));
       }
+
+      // If the current temp is the highest, set the currTMax
+      if (_history[i].currentTemp > currTMax) {
+        currTMax = _history[i].currentTemp;
+      }
     }
-    return genLineChartData(spots, powerSpots, setpointSpots, state.data);
+    return genLineChartData(
+      spots,
+      powerSpots,
+      setpointSpots,
+      state.data,
+      currTMax,
+    );
   }
 
   Timer? _timer;

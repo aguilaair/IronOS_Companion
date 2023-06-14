@@ -127,7 +127,7 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                     child: LineChart(
                       ironN.chartData,
                       swapAnimationDuration:
-                          const Duration(milliseconds: 1000), // Optional
+                          const Duration(milliseconds: 0), // Optional
                       swapAnimationCurve: Curves.easeInOut, // Optional
                     ),
                   ),

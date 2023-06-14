@@ -1,13 +1,16 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../data/iron_data.dart';
 
 LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
-    List<FlSpot> setpointSpots, IronData? data) {
+    List<FlSpot> setpointSpots, IronData? data, int maxTemp) {
   return LineChartData(
     minY: 0,
-    maxY: data?.setpoint.toDouble(),
+    maxY:
+        max((data?.setpoint.toDouble() ?? 400) * 1.1, maxTemp.toDouble() * 1.1),
     lineTouchData: LineTouchData(enabled: true),
     gridData: FlGridData(
       show: false,
@@ -64,7 +67,7 @@ LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
       // Setpoint
       LineChartBarData(
         spots: setpointSpots,
-        isCurved: true,
+        isCurved: false,
         barWidth: 2,
         show: true,
         belowBarData: BarAreaData(
