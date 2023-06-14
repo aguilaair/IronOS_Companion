@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ironos_companion/data/iron_states.dart';
+
 class IronData {
   final int currentTemp;
   final int setpoint;
@@ -13,7 +15,7 @@ class IronData {
   final int maxTemp;
   final int rawTip;
   final int hallSensor;
-  final int currentMode;
+  final OperatingMode currentMode;
   final double estimatedWattage;
 
   IronData({
@@ -29,7 +31,7 @@ class IronData {
     this.maxTemp = 0,
     this.rawTip = 0,
     this.hallSensor = 0,
-    this.currentMode = 0,
+    this.currentMode = OperatingMode.idle,
     this.estimatedWattage = 0,
   });
 
@@ -46,7 +48,7 @@ class IronData {
     int? maxTemp,
     int? rawTip,
     int? hallSensor,
-    int? currentMode,
+    OperatingMode? currentMode,
     double? estimatedWattage,
   }) {
     return IronData(

@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ironos_companion/data/iron_states.dart';
 import 'package:ironos_companion/data/iron_uuids.dart';
 import 'package:ironos_companion/utils/iron_data_extract.dart';
 import 'package:ironos_companion/utils/line_chart.dart';
@@ -194,7 +195,7 @@ class IronProvider extends StateNotifier<IronState> {
       powerSpots
           .add(FlSpot(i.toDouble(), _history[i].estimatedWattage.toDouble()));
       // Only add setpoint if the power is on
-      if (_history[i].currentMode != 0) {
+      if (_history[i].currentMode == OperatingMode.soldering) {
         setpointSpots
             .add(FlSpot(i.toDouble(), _history[i].setpoint.toDouble()));
       }
@@ -344,7 +345,7 @@ class IronProvider extends StateNotifier<IronState> {
 
     // Get characteristic
     final tempCharacteristic = service.characteristics.firstWhere((element) =>
-        element.uuid.toString() == IronCharacteristics.setTemperature);
+        element.uuid.toString() == IronCharacteristicUUIDSs.setTemperature);
 
     // Write data
     ByteData view = ByteData(2);
@@ -360,7 +361,7 @@ class IronProvider extends StateNotifier<IronState> {
 
     // Get characteristic for save
     final saveCharacteristic = service.characteristics.firstWhere((element) =>
-        element.uuid.toString() == IronCharacteristics.saveToFlash);
+        element.uuid.toString() == IronCharacteristicUUIDSs.saveToFlash);
 
     // Set to 1 to save
     ByteData view = ByteData(1);

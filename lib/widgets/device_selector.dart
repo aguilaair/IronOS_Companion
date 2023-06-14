@@ -21,6 +21,7 @@ class _DeviceAppBarState extends ConsumerState<DeviceAppBar> {
     final ironN = ref.watch(ironProvider.notifier);
     final ironP = ref.watch(ironProvider);
     return AppBar(
+      centerTitle: true,
       title: DropdownButton<String>(
         value: ironP.name,
         items: [

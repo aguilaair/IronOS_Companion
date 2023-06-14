@@ -1,4 +1,5 @@
 import 'package:ironos_companion/data/iron_data.dart';
+import 'package:ironos_companion/data/iron_states.dart';
 
 IronData extractData(List<int> chars) {
   final temp = chars[0] + (chars[1] << 8) + (chars[2] << 16) + (chars[3] << 24);
@@ -59,7 +60,7 @@ IronData extractData(List<int> chars) {
     maxTemp: maxTemp,
     rawTip: rawTipMicroV,
     hallSensor: hallSensor,
-    currentMode: opMode,
+    currentMode: operatingModeFromInt(opMode),
     estimatedWattage: watts,
   );
 

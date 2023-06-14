@@ -1,4 +1,4 @@
-class IronCharacteristics {
+class IronCharacteristicUUIDSs {
   static const String setTemperature = 'f6d70000-5a10-4eba-aa55-33e27f9bc533';
   static const String sleepTemperature = 'f6d70001-5a10-4eba-aa55-33e27f9bc533';
   static const String sleepTimeout = 'f6d70002-5a10-4eba-aa55-33e27f9bc533';
