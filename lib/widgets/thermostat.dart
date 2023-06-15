@@ -21,7 +21,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
 
   @override
   Widget build(BuildContext context) {
-    final ironN = ref.watch(ironProvider.notifier);
+    //final ironN = ref.watch(ironProvider.notifier);
     final ironP = ref.watch(ironProvider);
     return Padding(
       padding: const EdgeInsets.all(8.0),

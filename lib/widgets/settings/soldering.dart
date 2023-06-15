@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../data/iron_settings.dart';
 import '../../providers/iron.dart';
 import '../../providers/iron_settings.dart';
-import '../../screens/settings.dart';
 
 class SolderingSettingsTile extends StatefulHookConsumerWidget {
   const SolderingSettingsTile({super.key});
@@ -163,7 +162,7 @@ class _SolderingSettingsTileState extends ConsumerState<SolderingSettingsTile> {
         ),
         const SizedBox(height: 10),
         ////////////////////////////
-        Text("Allow Locking Buttons"),
+        const Text("Allow Locking Buttons"),
         const SizedBox(height: 10),
         ...LockingBehavior.values.map(
           (e) => RadioListTile(
