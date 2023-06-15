@@ -105,9 +105,8 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           AnimatedScale(
-                            scale: !(OperatingMode.idle ==
-                                    (ironP.data?.currentMode ??
-                                        OperatingMode.idle))
+                            scale: (isHeating(ironP.data?.currentMode ??
+                                    OperatingMode.idle))
                                 ? 1
                                 : 0.8,
                             curve: Curves.easeInOut,
@@ -117,9 +116,8 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                               style: TextStyle(
                                 fontSize: 40,
                                 fontWeight: FontWeight.bold,
-                                color: (OperatingMode.idle ==
-                                        (ironP.data?.currentMode ??
-                                            OperatingMode.idle))
+                                color: !(isHeating(ironP.data?.currentMode ??
+                                        OperatingMode.idle))
                                     ? Theme.of(context)
                                         .textTheme
                                         .displaySmall!
@@ -137,7 +135,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                           ),
                           Text(
                             percentage.toInt().toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
                             ),
@@ -190,7 +188,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                             Column(
                               children: [
                                 Text(
-                                  'Current Status:',
+                                  'Status:',
                                   style: TextStyle(
                                     color:
                                         Theme.of(context).colorScheme.onSurface,
@@ -330,6 +328,19 @@ class _ThermostatState extends ConsumerState<Thermostat> {
         return Icons.bedtime_rounded;
       default:
         return Icons.power_settings_new_outlined;
+    }
+  }
+
+  bool isHeating(OperatingMode mode) {
+    switch (mode) {
+      case OperatingMode.soldering:
+        return true;
+      case OperatingMode.boost:
+        return true;
+      case OperatingMode.sleeping:
+        return true;
+      default:
+        return false;
     }
   }
 }
