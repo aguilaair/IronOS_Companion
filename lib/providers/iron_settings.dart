@@ -395,8 +395,125 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     ByteData view = ByteData(2);
     view.setUint16(0, temp, Endian.little);
 
-    await tempCharacteristic.write(view.buffer.asUint8List(),
-        withoutResponse: true);
+    await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setBoost(int temp) async {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          solderingSettings:
+              state.settings?.solderingSettings.copyWith(boostTemp: temp)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.boostTemperature);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, temp, Endian.little);
+
+    await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setStartupBehavior(StartupBehavior behavior) async {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          solderingSettings: state.settings?.solderingSettings
+              .copyWith(startUpBehavior: behavior)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.autoStart);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, behavior.index, Endian.little);
+
+    await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setTempChangeShort(int value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          solderingSettings: state.settings?.solderingSettings
+              .copyWith(tempChangeShortPress: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() ==
+        IronCharacteristicUUIDSs.tempChangeShortStep);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setLockButtons(LockingBehavior behavior) async {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          solderingSettings: state.settings?.solderingSettings
+              .copyWith(allowLockingButtons: behavior)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.lockingMode);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, behavior.index, Endian.little);
+
+    await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> sendBlePacket(BluetoothCharacteristic char, Uint8List data,
+      int tries, int maxTries) async {
+    try {
+      await char.write(data, withoutResponse: true);
+    } catch (e) {
+      if (tries < maxTries) {
+        await sendBlePacket(char, data, tries + 1, maxTries);
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  Future<void> saveToFlash() async {
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.saveToFlash);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, 1, Endian.little);
+
+    await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
   }
 }
 
