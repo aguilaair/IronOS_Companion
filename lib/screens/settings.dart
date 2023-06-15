@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:ironos_companion/data/iron_settings.dart';
 import 'package:ironos_companion/widgets/settings/soldering.dart';
 
 import '../providers/iron.dart';
