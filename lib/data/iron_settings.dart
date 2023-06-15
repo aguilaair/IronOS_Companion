@@ -2,92 +2,91 @@ import 'dart:convert';
 
 class IronSettings {
   PowerSettings powerSettings;
-  SleepMode sleepMode;
   SolderingSettings solderingSettings;
   UISettings uiSettings;
   AdvancedSettings advancedSettings;
-  UnusedSettings unusedSettings;
+  UnusedSettings? unusedSettings;
+  SleepSettings sleepSettings;
 
   IronSettings({
     required this.powerSettings,
-    required this.sleepMode,
     required this.solderingSettings,
     required this.uiSettings,
     required this.advancedSettings,
-    required this.unusedSettings,
+    this.unusedSettings,
+    required this.sleepSettings,
   });
 
   IronSettings copyWith({
     PowerSettings? powerSettings,
-    SleepMode? sleepMode,
     SolderingSettings? solderingSettings,
     UISettings? uiSettings,
     AdvancedSettings? advancedSettings,
     UnusedSettings? unusedSettings,
+    SleepSettings? sleepSettings,
   }) {
     return IronSettings(
       powerSettings: powerSettings ?? this.powerSettings,
-      sleepMode: sleepMode ?? this.sleepMode,
       solderingSettings: solderingSettings ?? this.solderingSettings,
       uiSettings: uiSettings ?? this.uiSettings,
       advancedSettings: advancedSettings ?? this.advancedSettings,
       unusedSettings: unusedSettings ?? this.unusedSettings,
+      sleepSettings: sleepSettings ?? this.sleepSettings,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'powerSettings': powerSettings.toMap(),
-      'sleepMode': sleepMode.toMap(),
       'solderingSettings': solderingSettings.toMap(),
       'uiSettings': uiSettings.toMap(),
       'advancedSettings': advancedSettings.toMap(),
-      'unusedSettings': unusedSettings.toMap(),
+      'unusedSettings': unusedSettings?.toMap(),
+      'sleepSettings': sleepSettings.toMap(),
     };
   }
 
   factory IronSettings.fromMap(Map<String, dynamic> map) {
     return IronSettings(
       powerSettings: PowerSettings.fromMap(map['powerSettings']),
-      sleepMode: SleepMode.fromMap(map['sleepMode']),
       solderingSettings: SolderingSettings.fromMap(map['solderingSettings']),
       uiSettings: UISettings.fromMap(map['uiSettings']),
       advancedSettings: AdvancedSettings.fromMap(map['advancedSettings']),
-      unusedSettings: UnusedSettings.fromMap(map['unusedSettings']),
+      unusedSettings: map['unusedSettings'] != null ? UnusedSettings.fromMap(map['unusedSettings']) : null,
+      sleepSettings: SleepSettings.fromMap(map['sleepSettings']),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory IronSettings.fromJson(String source) =>
-      IronSettings.fromMap(json.decode(source));
+  factory IronSettings.fromJson(String source) => IronSettings.fromMap(json.decode(source));
 
   @override
   String toString() {
-    return 'IronSettings(powerSettings: $powerSettings, sleepMode: $sleepMode, solderingSettings: $solderingSettings, uiSettings: $uiSettings, advancedSettings: $advancedSettings, unusedSettings: $unusedSettings)';
+    return 'IronSettings(powerSettings: $powerSettings, solderingSettings: $solderingSettings, uiSettings: $uiSettings, advancedSettings: $advancedSettings, unusedSettings: $unusedSettings, sleepSettings: $sleepSettings)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
+  
     return other is IronSettings &&
-        other.powerSettings == powerSettings &&
-        other.sleepMode == sleepMode &&
-        other.solderingSettings == solderingSettings &&
-        other.uiSettings == uiSettings &&
-        other.advancedSettings == advancedSettings &&
-        other.unusedSettings == unusedSettings;
+      other.powerSettings == powerSettings &&
+      other.solderingSettings == solderingSettings &&
+      other.uiSettings == uiSettings &&
+      other.advancedSettings == advancedSettings &&
+      other.unusedSettings == unusedSettings &&
+      other.sleepSettings == sleepSettings;
   }
 
   @override
   int get hashCode {
     return powerSettings.hashCode ^
-        sleepMode.hashCode ^
-        solderingSettings.hashCode ^
-        uiSettings.hashCode ^
-        advancedSettings.hashCode ^
-        unusedSettings.hashCode;
+      solderingSettings.hashCode ^
+      uiSettings.hashCode ^
+      advancedSettings.hashCode ^
+      unusedSettings.hashCode ^
+      sleepSettings.hashCode;
   }
 }
 
@@ -508,13 +507,13 @@ enum AnimationSpeed {
 }
 
 class AdvancedSettings {
-  int poweLimit;
+  int powerLimit;
   bool calibrateCJCNextBoot;
-  int powerPulse;
+  double powerPulse;
   Duration powerPulseDelay, powerPulseDuration;
 
   AdvancedSettings({
-    required this.poweLimit,
+    required this.powerLimit,
     required this.calibrateCJCNextBoot,
     required this.powerPulse,
     required this.powerPulseDuration,
@@ -522,14 +521,14 @@ class AdvancedSettings {
   });
 
   AdvancedSettings copyWith({
-    int? poweLimit,
+    int? powerLimit,
     bool? calibrateCJCNextBoot,
-    int? powerPulse,
+    double? powerPulse,
     Duration? powerPulseDelay,
     Duration? powerPulseDuration,
   }) {
     return AdvancedSettings(
-      poweLimit: poweLimit ?? this.poweLimit,
+      powerLimit: powerLimit ?? this.powerLimit,
       calibrateCJCNextBoot: calibrateCJCNextBoot ?? this.calibrateCJCNextBoot,
       powerPulse: powerPulse ?? this.powerPulse,
       powerPulseDuration: powerPulseDuration ?? this.powerPulseDuration,
@@ -539,7 +538,7 @@ class AdvancedSettings {
 
   Map<String, dynamic> toMap() {
     return {
-      'poweLimit': poweLimit,
+      'powerLimit': powerLimit,
       'calibrateCJCNextBoot': calibrateCJCNextBoot,
       'powerPulse': powerPulse,
       'powerPulseDuration': powerPulseDuration.inSeconds,
@@ -549,7 +548,7 @@ class AdvancedSettings {
 
   factory AdvancedSettings.fromMap(Map<String, dynamic> map) {
     return AdvancedSettings(
-      poweLimit: map['poweLimit']?.toInt() ?? 0,
+      powerLimit: map['powerLimit']?.toInt() ?? 0,
       calibrateCJCNextBoot: map['calibrateCJCNextBoot'] ?? false,
       powerPulse: map['powerPulse']?.toInt() ?? 0,
       powerPulseDuration: Duration(seconds: map['powerPulseDuration']),
@@ -564,7 +563,7 @@ class AdvancedSettings {
 
   @override
   String toString() {
-    return 'AdvancedSettings(poweLimit: $poweLimit, calibrateCJCNextBoot: $calibrateCJCNextBoot, powerPulse: $powerPulse, powerPulseDuration: $powerPulseDuration, powerPulseDelay: $powerPulseDelay)';
+    return 'AdvancedSettings(powerLimit: $powerLimit, calibrateCJCNextBoot: $calibrateCJCNextBoot, powerPulse: $powerPulse, powerPulseDuration: $powerPulseDuration, powerPulseDelay: $powerPulseDelay)';
   }
 
   @override
@@ -572,7 +571,7 @@ class AdvancedSettings {
     if (identical(this, other)) return true;
 
     return other is AdvancedSettings &&
-        other.poweLimit == poweLimit &&
+        other.powerLimit == powerLimit &&
         other.calibrateCJCNextBoot == calibrateCJCNextBoot &&
         other.powerPulse == powerPulse &&
         other.powerPulseDuration == powerPulseDuration &&
@@ -581,7 +580,7 @@ class AdvancedSettings {
 
   @override
   int get hashCode {
-    return poweLimit.hashCode ^
+    return powerLimit.hashCode ^
         calibrateCJCNextBoot.hashCode ^
         powerPulse.hashCode ^
         powerPulseDuration.hashCode ^
@@ -680,5 +679,80 @@ class UnusedSettings {
         hallEffectSensitivity.hashCode ^
         pDMissingWarningCount.hashCode ^
         uiLanguage.hashCode;
+  }
+}
+
+class SleepSettings {
+  int motionSenitivity;
+  int sleepTemp;
+  Duration sleepTimeout;
+  Duration shutdownTimeout;
+
+  SleepSettings({
+    required this.motionSenitivity,
+    required this.sleepTemp,
+    required this.sleepTimeout,
+    required this.shutdownTimeout,
+  });
+
+  SleepSettings copyWith({
+    int? motionSenitivity,
+    int? sleepTemp,
+    Duration? sleepTimeout,
+    Duration? shutdownTimeout,
+  }) {
+    return SleepSettings(
+      motionSenitivity: motionSenitivity ?? this.motionSenitivity,
+      sleepTemp: sleepTemp ?? this.sleepTemp,
+      sleepTimeout: sleepTimeout ?? this.sleepTimeout,
+      shutdownTimeout: shutdownTimeout ?? this.shutdownTimeout,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'motionSenitivity': motionSenitivity,
+      'sleepTemp': sleepTemp,
+      'sleepTimeout': sleepTimeout.inSeconds,
+      'shutdownTimeout': shutdownTimeout.inSeconds,
+    };
+  }
+
+  factory SleepSettings.fromMap(Map<String, dynamic> map) {
+    return SleepSettings(
+      motionSenitivity: map['motionSenitivity']?.toInt() ?? 0,
+      sleepTemp: map['sleepTemp']?.toInt() ?? 0,
+      sleepTimeout: Duration(seconds: map['sleepTimeout']),
+      shutdownTimeout: Duration(seconds: map['shutdownTimeout']),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory SleepSettings.fromJson(String source) =>
+      SleepSettings.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'SleepSettings(motionSenitivity: $motionSenitivity, sleepTemp: $sleepTemp, sleepTimeout: $sleepTimeout, shutdownTimeout: $shutdownTimeout)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is SleepSettings &&
+        other.motionSenitivity == motionSenitivity &&
+        other.sleepTemp == sleepTemp &&
+        other.sleepTimeout == sleepTimeout &&
+        other.shutdownTimeout == shutdownTimeout;
+  }
+
+  @override
+  int get hashCode {
+    return motionSenitivity.hashCode ^
+        sleepTemp.hashCode ^
+        sleepTimeout.hashCode ^
+        shutdownTimeout.hashCode;
   }
 }

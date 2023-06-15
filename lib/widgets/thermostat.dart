@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ironos_companion/data/iron_states.dart';
+import 'package:ironos_companion/providers/iron_settings.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../providers/iron.dart';
@@ -58,7 +59,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
         initialValue: ironP.data?.setpoint.toDouble() ?? 0,
         onChangeEnd: (value) {
           HapticFeedback.heavyImpact();
-          ironN.setData(ironP.data!.copyWith(setpoint: value.toInt()));
+          ref.read(ironSettingsProvider.notifier).setTemp(value.toInt());
         },
         onChangeStart: (value) {
           HapticFeedback.lightImpact();
@@ -167,8 +168,9 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 if (newTemp <= 0) {
                                   newTemp = 0;
                                 }
-                                ironN.setData(
-                                    ironP.data!.copyWith(setpoint: newTemp));
+                                ref
+                                    .read(ironSettingsProvider.notifier)
+                                    .setTemp(newTemp);
                                 HapticFeedback.mediumImpact();
                               },
                               onLongPress: () {
@@ -176,8 +178,9 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 if (newTemp <= 0) {
                                   newTemp = 0;
                                 }
-                                ironN.setData(
-                                    ironP.data!.copyWith(setpoint: newTemp));
+                                ref
+                                    .read(ironSettingsProvider.notifier)
+                                    .setTemp(newTemp);
                                 HapticFeedback.heavyImpact();
                               },
                               child: Icon(
@@ -220,8 +223,9 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 if (newTemp >= ironP.data!.maxTemp) {
                                   newTemp = ironP.data!.maxTemp;
                                 }
-                                ironN.setData(
-                                    ironP.data!.copyWith(setpoint: newTemp));
+                                ref
+                                    .read(ironSettingsProvider.notifier)
+                                    .setTemp(newTemp);
                                 HapticFeedback.mediumImpact();
                               },
                               onLongPress: () {
@@ -229,8 +233,9 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 if (newTemp >= ironP.data!.maxTemp) {
                                   newTemp = ironP.data!.maxTemp;
                                 }
-                                ironN.setData(
-                                    ironP.data!.copyWith(setpoint: newTemp));
+                                ref
+                                    .read(ironSettingsProvider.notifier)
+                                    .setTemp(newTemp);
                                 HapticFeedback.heavyImpact();
                               },
                               child: Icon(

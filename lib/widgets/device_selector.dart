@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ironos_companion/screens/settings.dart';
 
 import '../providers/iron.dart';
 import '../screens/devices.dart';
@@ -106,12 +107,29 @@ class _DeviceAppBarState extends ConsumerState<DeviceAppBar> {
           } else {
             if (ironP.isConnected) {
               ironN.disconnect();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const DeviceSelectionScreen(),
+                ),
+              );
             } else {
               ironN.attemptReconnect();
             }
           }
         },
       ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings_rounded),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const SettingsScreen(),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

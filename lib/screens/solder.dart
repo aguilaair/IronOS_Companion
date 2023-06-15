@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ironos_companion/providers/iron_settings.dart';
 import '../widgets/thermostat.dart';
 
 import '../providers/iron.dart';
@@ -18,6 +19,12 @@ class _SolderPageState extends ConsumerState<SolderPage> {
   Widget build(BuildContext context) {
     final ironN = ref.watch(ironProvider.notifier);
     final ironP = ref.watch(ironProvider);
+
+    if (ironP.isConnected) {
+      Future.delayed(const Duration(milliseconds: 5000), () {
+        ref.watch(ironSettingsProvider);
+      });
+    }
     return Scaffold(
       appBar: const DeviceAppBar(),
       body: !ironP.isConnected
@@ -48,6 +55,7 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                       vertical: 10,
                     ),
                     child: Card(
+                      color: Theme.of(context).cardColor,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -89,7 +97,7 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Icon(
-                                  Icons.power_outlined,
+                                  Icons.power_rounded,
                                   size: 30,
                                 ),
                                 const SizedBox(
@@ -105,7 +113,7 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Icon(
-                                  Icons.health_and_safety_rounded,
+                                  Icons.front_hand_rounded,
                                   size: 30,
                                 ),
                                 const SizedBox(

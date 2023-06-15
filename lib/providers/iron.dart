@@ -163,6 +163,20 @@ class IronProvider extends StateNotifier<IronState> {
     super.dispose();
   }
 
+  void pauseTimer() {
+    _timer?.cancel();
+  }
+
+  void resumeTimer() {
+    _timer?.cancel();
+    final stateService = services!
+        .firstWhere((element) => element.uuid.toString() == IronServices.bulk);
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 1000),
+      (_) => poll(stateService),
+    );
+  }
+
   Future<void> resetNewDevice() async {
     await disconnect();
 
@@ -233,7 +247,7 @@ class IronProvider extends StateNotifier<IronState> {
   Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
 
   bool _isScanning = false;
-  List<BluetoothService>? _services;
+  List<BluetoothService>? services;
 
   void startScan() {
     // Check if scanning
@@ -271,9 +285,9 @@ class IronProvider extends StateNotifier<IronState> {
 
     _timer?.cancel();
     // Discover services
-    _services = await device.discoverServices();
+    services = await device.discoverServices();
 
-    final stateService = _services!
+    final stateService = services!
         .firstWhere((element) => element.uuid.toString() == IronServices.bulk);
 
     // Setup timer for polling characteristics
@@ -335,40 +349,12 @@ class IronProvider extends StateNotifier<IronState> {
     }
   }
 
-  // Set data - write to f6d7ffff-5a10-4eba-aa55-33e27f9bc533 value 1 to save settings
-  Future<void> setData(IronData data) async {
-    state = state.copyWith(data: data);
-
-    // Get service
-    final service = _services!.firstWhere(
-        (element) => element.uuid.toString() == IronServices.settings);
-
-    // Get characteristic
-    final tempCharacteristic = service.characteristics.firstWhere((element) =>
-        element.uuid.toString() == IronCharacteristicUUIDSs.setTemperature);
-
-    // Write data
-    ByteData view = ByteData(2);
-    view.setUint16(0, data.setpoint, Endian.little);
-
-    await tempCharacteristic.write(view.buffer.asUint8List(),
-        withoutResponse: true);
-  }
-
-  Future<void> saveToFlash() async {
-    final service = _services!.firstWhere(
-        (element) => element.uuid.toString() == IronServices.settings);
-
-    // Get characteristic for save
-    final saveCharacteristic = service.characteristics.firstWhere((element) =>
-        element.uuid.toString() == IronCharacteristicUUIDSs.saveToFlash);
-
-    // Set to 1 to save
-    ByteData view = ByteData(1);
-    view.setUint8(0, 1);
-
-    await saveCharacteristic.write(view.buffer.asUint8List(),
-        withoutResponse: true);
+  void setTemp(int temp){
+    state = state.copyWith(
+      data: state.data?.copyWith(
+        setpoint: temp,
+      ),
+    );
   }
 }
 
