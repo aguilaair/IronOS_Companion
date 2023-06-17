@@ -77,6 +77,10 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     }
 
     try {
+      state = state.copyWith(
+        isRetrieveing: true,
+      );
+
       // Get the services
       final settingsService = ironN.services!.firstWhere(
           (element) => element.uuid.toString() == IronServices.settings);
@@ -113,6 +117,9 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     }
 
     ironN.resumeTimer();
+    state = state.copyWith(
+      isRetrieveing: false,
+    );
   }
 
   Future<PowerSettings> _getPowerSettings(BluetoothService service) async {
@@ -148,7 +155,7 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
       dCInCutoff: cutoff,
       minVolCell: minVolCell / 10,
       qCMaxVoltage: qCMaxVoltage / 10,
-      pdTimeout: Duration(seconds: pdTimeout),
+      pdTimeout: Duration(milliseconds: pdTimeout * 100),
     );
 
     return powerSettings;
@@ -346,15 +353,14 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
         element.uuid.toString() == IronCharacteristicUUIDSs.sleepTimeout);
 
     final rawSleepDelay = await sleepDelayChar.read();
-    final Duration sleepDelay =
-        Duration(seconds: rawSleepDelay[0] | (rawSleepDelay[1] << 8));
+    final int sleepDelay = rawSleepDelay[0] | (rawSleepDelay[1] << 8);
 
     final shutdownChar = service.characteristics.firstWhere((element) =>
         element.uuid.toString() == IronCharacteristicUUIDSs.shutdownTimeout);
 
     final rawShutdown = await shutdownChar.read();
     final Duration shutdown =
-        Duration(seconds: rawShutdown[0] | (rawShutdown[1] << 8));
+        Duration(minutes: rawShutdown[0] | (rawShutdown[1] << 8));
 
     final motionSensChar = service.characteristics.firstWhere((element) =>
         element.uuid.toString() == IronCharacteristicUUIDSs.motionSensitivity);
@@ -484,6 +490,225 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     view.setUint16(0, behavior.index, Endian.little);
 
     await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setMotionSensitivity(int sensitivity) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          sleepSettings: state.settings?.sleepSettings
+              .copyWith(motionSenitivity: sensitivity)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.motionSensitivity);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, sensitivity, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setSleepTemp(int value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          sleepSettings:
+              state.settings?.sleepSettings.copyWith(sleepTemp: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.sleepTemperature);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setSleepTimeout(int timout) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          sleepSettings:
+              state.settings?.sleepSettings.copyWith(sleepTimeout: timout)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.sleepTimeout);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, timout, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setShutdownTimeout(Duration timeout) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          sleepSettings:
+              state.settings?.sleepSettings.copyWith(shutdownTimeout: timeout)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.shutdownTimeout);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, timeout.inMinutes, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setPowerSource(PowerSource source) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          powerSettings:
+              state.settings?.powerSettings.copyWith(dCInCutoff: source)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.dCInCutoff);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, source.index, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setCutoffVol(double val) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          powerSettings:
+              state.settings?.powerSettings.copyWith(minVolCell: val)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.minVolCell);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, (val * 10).toInt(), Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setQcMaxVoltage(double val) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          powerSettings:
+              state.settings?.powerSettings.copyWith(qCMaxVoltage: val)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.qCMaxVoltage);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, (val * 10).toInt(), Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setPdTimeout(Duration timeout) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          powerSettings:
+              state.settings?.powerSettings.copyWith(pdTimeout: timeout)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.pdNegTimeout);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, timeout.inMilliseconds ~/ 100, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setTempUnit(TempUnit unit) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings: state.settings?.uiSettings.copyWith(tempUnit: unit)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.temperatureUnit);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, unit.index, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setDisplayOrientation(DisplayOrientation orientation) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings: state.settings?.uiSettings
+              .copyWith(displayOrientation: orientation)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.displayRotation);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, orientation.index, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
   }
 
   Future<void> sendBlePacket(BluetoothCharacteristic char, Uint8List data,

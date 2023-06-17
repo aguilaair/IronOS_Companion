@@ -52,14 +52,17 @@ class IronSettings {
       solderingSettings: SolderingSettings.fromMap(map['solderingSettings']),
       uiSettings: UISettings.fromMap(map['uiSettings']),
       advancedSettings: AdvancedSettings.fromMap(map['advancedSettings']),
-      unusedSettings: map['unusedSettings'] != null ? UnusedSettings.fromMap(map['unusedSettings']) : null,
+      unusedSettings: map['unusedSettings'] != null
+          ? UnusedSettings.fromMap(map['unusedSettings'])
+          : null,
       sleepSettings: SleepSettings.fromMap(map['sleepSettings']),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory IronSettings.fromJson(String source) => IronSettings.fromMap(json.decode(source));
+  factory IronSettings.fromJson(String source) =>
+      IronSettings.fromMap(json.decode(source));
 
   @override
   String toString() {
@@ -69,24 +72,24 @@ class IronSettings {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is IronSettings &&
-      other.powerSettings == powerSettings &&
-      other.solderingSettings == solderingSettings &&
-      other.uiSettings == uiSettings &&
-      other.advancedSettings == advancedSettings &&
-      other.unusedSettings == unusedSettings &&
-      other.sleepSettings == sleepSettings;
+        other.powerSettings == powerSettings &&
+        other.solderingSettings == solderingSettings &&
+        other.uiSettings == uiSettings &&
+        other.advancedSettings == advancedSettings &&
+        other.unusedSettings == unusedSettings &&
+        other.sleepSettings == sleepSettings;
   }
 
   @override
   int get hashCode {
     return powerSettings.hashCode ^
-      solderingSettings.hashCode ^
-      uiSettings.hashCode ^
-      advancedSettings.hashCode ^
-      unusedSettings.hashCode ^
-      sleepSettings.hashCode;
+        solderingSettings.hashCode ^
+        uiSettings.hashCode ^
+        advancedSettings.hashCode ^
+        unusedSettings.hashCode ^
+        sleepSettings.hashCode;
   }
 }
 
@@ -489,8 +492,8 @@ enum TempUnit {
 }
 
 enum DisplayOrientation {
-  auto,
   right,
+  auto,
   left,
 }
 
@@ -685,7 +688,7 @@ class UnusedSettings {
 class SleepSettings {
   int motionSenitivity;
   int sleepTemp;
-  Duration sleepTimeout;
+  int sleepTimeout;
   Duration shutdownTimeout;
 
   SleepSettings({
@@ -698,7 +701,7 @@ class SleepSettings {
   SleepSettings copyWith({
     int? motionSenitivity,
     int? sleepTemp,
-    Duration? sleepTimeout,
+    int? sleepTimeout,
     Duration? shutdownTimeout,
   }) {
     return SleepSettings(
@@ -713,7 +716,7 @@ class SleepSettings {
     return {
       'motionSenitivity': motionSenitivity,
       'sleepTemp': sleepTemp,
-      'sleepTimeout': sleepTimeout.inSeconds,
+      'sleepTimeout': sleepTimeout,
       'shutdownTimeout': shutdownTimeout.inSeconds,
     };
   }
@@ -722,7 +725,7 @@ class SleepSettings {
     return SleepSettings(
       motionSenitivity: map['motionSenitivity']?.toInt() ?? 0,
       sleepTemp: map['sleepTemp']?.toInt() ?? 0,
-      sleepTimeout: Duration(seconds: map['sleepTimeout']),
+      sleepTimeout: map['sleepTimeout'],
       shutdownTimeout: Duration(seconds: map['shutdownTimeout']),
     );
   }

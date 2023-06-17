@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ironos_companion/widgets/settings/power.dart';
+import 'package:ironos_companion/widgets/settings/sleep.dart';
 import 'package:ironos_companion/widgets/settings/soldering.dart';
+import 'package:ironos_companion/widgets/settings/ui.dart';
 
 import '../providers/iron.dart';
 import '../providers/iron_settings.dart';
@@ -106,6 +109,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         : const Column(
                             children: [
                               SolderingSettingsTile(),
+                              SleepSettingsTile(),
+                              PowerSettingsTile(),
+                              UISettingsTile(),
                               SizedBox(height: 50),
                             ],
                           )
@@ -117,5 +123,3 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ));
   }
 }
-
-
