@@ -75,6 +75,120 @@ class _UISettingsTileState extends ConsumerState<UISettingsTile> {
             ironSN.setDisplayOrientation(value!);
           },
         ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Cooldown Flashing"),
+        SwitchListTile(
+          title: const Text("Enable"),
+          value: ironS.settings!.uiSettings.cooldownFlashing,
+          onChanged: (value) {
+            ironSN.setCooldownFlashing(value);
+          },
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Scrolling Speed"),
+        ...ScrollingSpeed.values.map(
+          (e) => RadioListTile<ScrollingSpeed>(
+            title: Text(e.name[0].toUpperCase() + e.name.substring(1)),
+            value: e,
+            groupValue: ironS.settings!.uiSettings.scrollingSpeed,
+            onChanged: (value) {
+              ironSN.setScrollingSpeed(value!);
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Swap Buttons"),
+        SwitchListTile(
+          title: const Text("Enable"),
+          value: ironS.settings!.uiSettings.swapPlusMinusKeys,
+          onChanged: (value) {
+            ironSN.setSwapButtons(value);
+          },
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Animation Speed"),
+        ...AnimationSpeed.values.map(
+          (e) => RadioListTile<AnimationSpeed>(
+            title: Text(e.name[0].toUpperCase() + e.name.substring(1)),
+            value: e,
+            groupValue: ironS.settings!.uiSettings.animationSpeed,
+            onChanged: (value) {
+              ironSN.setAnimationSpeed(value!);
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Screen Brightness"),
+        Slider(
+          value: ironS.settings!.uiSettings.screenBrightness.toDouble(),
+          min: 0,
+          max: 101,
+          label: ironS.settings!.uiSettings.screenBrightness.round().toString(),
+          onChanged: (value) {
+            ironSN.setScreenBrightness(value.toInt());
+          },
+        ),
+        Center(
+          child: Text(
+            "${ironS.settings!.uiSettings.screenBrightness.round()}%",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Invert Screen"),
+        SwitchListTile(
+          title: const Text("Enable"),
+          value: ironS.settings!.uiSettings.invertScreen,
+          onChanged: (value) {
+            ironSN.setInvertScreen(value);
+          },
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Boot Logo Duration"),
+        Slider(
+          value:
+              ironS.settings!.uiSettings.bootLogoDuration.inSeconds.toDouble(),
+          min: 0,
+          max: 5,
+          onChanged: (value) {
+            ironSN.setBootLogoDuration(value.toInt());
+          },
+        ),
+        Center(
+          child: Text(
+            "${ironS.settings!.uiSettings.bootLogoDuration.inSeconds} seconds",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Detailed Idle Screen"),
+        SwitchListTile(
+          title: const Text("Enable"),
+          value: ironS.settings!.uiSettings.detailedIdleScreen,
+          onChanged: (value) {
+            ironSN.setDetailedIdleScreen(value);
+          },
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
+        const Text("Detailed Solder Screen"),
+        SwitchListTile(
+          title: const Text("Enable"),
+          value: ironS.settings!.uiSettings.detailedSolderingScreen,
+          onChanged: (value) {
+            ironSN.setDetailedSolderScreen(value);
+          },
+        ),
+        const SizedBox(height: 10),
+        ////////////////////////
       ],
     );
   }

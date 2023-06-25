@@ -254,7 +254,7 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
         element.uuid.toString() == IronCharacteristicUUIDSs.brightness);
 
     final rawBrightness = await brightnessChar.read();
-    final brightness = rawBrightness[0];
+    final brightness = rawBrightness[0] | (rawBrightness[1] << 8);
 
     final invertChar = service.characteristics.firstWhere((element) =>
         element.uuid.toString() == IronCharacteristicUUIDSs.colourInversion);
@@ -707,6 +707,204 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     // Write data
     ByteData view = ByteData(2);
     view.setUint16(0, orientation.index, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setCooldownFlashing(bool value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings:
+              state.settings?.uiSettings.copyWith(cooldownFlashing: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.cooldownBlink);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value ? 1 : 0, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setScrollingSpeed(ScrollingSpeed speed) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings:
+              state.settings?.uiSettings.copyWith(scrollingSpeed: speed)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.scrollingSpeed);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, speed.index, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setSwapButtons(bool value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings:
+              state.settings?.uiSettings.copyWith(swapPlusMinusKeys: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() ==
+        IronCharacteristicUUIDSs.reverseButtonTempChange);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value ? 1 : 0, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setAnimationSpeed(AnimationSpeed speed) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings:
+              state.settings?.uiSettings.copyWith(animationSpeed: speed)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.animSpeed);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, speed.index, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setScreenBrightness(int brightness) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings: state.settings?.uiSettings
+              .copyWith(screenBrightness: brightness)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.brightness);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, brightness, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setInvertScreen(bool value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings: state.settings?.uiSettings.copyWith(invertScreen: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.colourInversion);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value ? 1 : 0, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setBootLogoDuration(int duration) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings: state.settings?.uiSettings
+              .copyWith(bootLogoDuration: Duration(seconds: duration))),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.logoTime);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, duration, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setDetailedIdleScreen(bool value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings:
+              state.settings?.uiSettings.copyWith(detailedIdleScreen: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.advancedIdle);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value ? 1 : 0, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setDetailedSolderScreen(bool value) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          uiSettings: state.settings?.uiSettings
+              .copyWith(detailedSolderingScreen: value)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.advancedSoldering);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, value ? 1 : 0, Endian.little);
 
     return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
   }
