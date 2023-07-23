@@ -909,6 +909,88 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
   }
 
+  Future<void> setPowerLimit(int limit) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          advancedSettings:
+              state.settings?.advancedSettings.copyWith(powerLimit: limit)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.powerLimit);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, limit, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setPowerPulse(double power) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          advancedSettings:
+              state.settings?.advancedSettings.copyWith(powerPulse: power)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.powerPulsePower);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, (power * 10).toInt(), Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> setPowerPulseDelay(Duration delay) {
+    state = state.copyWith(
+      settings: state.settings?.copyWith(
+          advancedSettings: state.settings?.advancedSettings
+              .copyWith(powerPulseDelay: delay)),
+    );
+
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get Characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.powerPulseWait);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, delay.inSeconds, Endian.little);
+
+    return sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
+  Future<void> resetAdvancedSettings() async {
+    // Get service
+    final service = ref.read(ironProvider.notifier).services!.firstWhere(
+        (element) => element.uuid.toString() == IronServices.settings);
+
+    // Get Characteristic
+    final tempCharacteristic = service.characteristics.firstWhere((element) =>
+        element.uuid.toString() == IronCharacteristicUUIDSs.settingsReset);
+
+    // Write data
+    ByteData view = ByteData(2);
+    view.setUint16(0, 1, Endian.little);
+
+    await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+  }
+
   Future<void> sendBlePacket(BluetoothCharacteristic char, Uint8List data,
       int tries, int maxTries) async {
     try {
