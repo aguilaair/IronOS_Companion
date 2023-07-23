@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../data/iron_settings.dart';
 import '../../providers/iron_settings.dart';
 
 class PowerSettingsTile extends StatefulHookConsumerWidget {
