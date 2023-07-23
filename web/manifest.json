@@ -1,6 +1,6 @@
 {
-    "name": "ironos_companion",
-    "short_name": "ironos_companion",
+    "name": "IronOS Companion",
+    "short_name": "IronOS",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
