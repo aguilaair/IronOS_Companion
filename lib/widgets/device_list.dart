@@ -38,8 +38,9 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
                     child: ListTile(
-                      title: Text(snapshot.data![0].device.name),
-                      subtitle: Text(snapshot.data![0].device.id.toString()),
+                      title: Text(snapshot.data![0].device.localName),
+                      subtitle:
+                          Text(snapshot.data![0].device.remoteId.toString()),
                     ),
                   ),
                 ),
@@ -81,8 +82,8 @@ class _DeviceListState extends ConsumerState<DeviceList> {
                   itemBuilder: (context, index) {
                     final device = snapshot.data![index].device;
                     return ListTile(
-                      title: Text(device.name),
-                      subtitle: Text(device.id.toString()),
+                      title: Text(device.localName),
+                      subtitle: Text(device.localName.toString()),
                       trailing: !inProgress
                           ? IconButton(
                               icon: const Icon(Icons.bluetooth_connected),

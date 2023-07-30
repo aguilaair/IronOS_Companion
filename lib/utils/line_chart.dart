@@ -11,11 +11,11 @@ LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
     minY: 0,
     maxY:
         max((data?.setpoint.toDouble() ?? 400) * 1.1, maxTemp.toDouble() * 1.1),
-    lineTouchData: LineTouchData(enabled: true),
-    gridData: FlGridData(
+    lineTouchData: const LineTouchData(enabled: true),
+    gridData: const FlGridData(
       show: false,
     ),
-    titlesData: FlTitlesData(
+    titlesData: const FlTitlesData(
       show: false,
     ),
     borderData: FlBorderData(
@@ -27,7 +27,7 @@ LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
         isCurved: true,
         barWidth: 3,
         show: true,
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,
           gradient: LinearGradient(
@@ -54,7 +54,7 @@ LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
         isCurved: true,
         barWidth: 3,
         show: true,
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
         gradient: const LinearGradient(
           colors: [
             Colors.green,
@@ -81,7 +81,7 @@ LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
             end: Alignment.bottomCenter,
           ),
         ),
-        dotData: FlDotData(show: false),
+        dotData: const FlDotData(show: false),
         gradient: const LinearGradient(
           colors: [
             Colors.orange,

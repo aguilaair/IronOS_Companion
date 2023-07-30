@@ -194,8 +194,6 @@ class IronProvider extends StateNotifier<IronState> {
 
   static const boxName = "iron";
 
-  final _blueInstance = FlutterBluePlus;
-
   final List<IronData> _history = [];
 
   LineChartData get chartData {
