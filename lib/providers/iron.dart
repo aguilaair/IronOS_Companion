@@ -113,10 +113,10 @@ class IronProvider extends StateNotifier<IronState> {
       state = IronState.fromMap(box.toMap());
     }
 
-    _blueInstance.connectedDevices.then((value) async {
+    FlutterBluePlus.connectedSystemDevices.then((value) async {
       if (value.isNotEmpty) {
         for (final device in value) {
-          if (device.id.id == state.id) {
+          if (device.remoteId.str == state.id) {
             // Connect
             connect(device, connect: false);
             break;
@@ -129,10 +129,10 @@ class IronProvider extends StateNotifier<IronState> {
       connect(state.device!);
     } else if (state.id.isNotEmpty) {
       // Listen for iron
-      _blueInstance.scanResults.listen((event) {
+      FlutterBluePlus.scanResults.listen((event) {
         if (event.isNotEmpty &&
             !state.isConnected &&
-            event.first.device.id.id == state.id) {
+            event.first.device.remoteId.str == state.id) {
           connect(event.first.device);
         }
       });
@@ -147,7 +147,7 @@ class IronProvider extends StateNotifier<IronState> {
         if (count > 10) {
           timer.cancel();
         }
-        if (await _blueInstance.isOn) {
+        if (await FlutterBluePlus.isOn) {
           timer.cancel();
           startScan();
         }
@@ -194,7 +194,7 @@ class IronProvider extends StateNotifier<IronState> {
 
   static const boxName = "iron";
 
-  final _blueInstance = FlutterBluePlus.instance;
+  final _blueInstance = FlutterBluePlus;
 
   final List<IronData> _history = [];
 
@@ -243,25 +243,25 @@ class IronProvider extends StateNotifier<IronState> {
     connect(state.device!);
   }
 
-  Stream<List<ScanResult>> get scanResults => _blueInstance.scanResults;
+  Stream<List<ScanResult>> get scanResults => FlutterBluePlus.scanResults;
 
   bool _isScanning = false;
   List<BluetoothService>? services;
 
-  void startScan() {
+  Future<void> startScan() async {
     // Check if scanning
     if (_isScanning) return;
-    _blueInstance.startScan(withServices: [
+    await FlutterBluePlus.startScan(withServices: [
       Guid(IronServices.bulk), // Bulk data
       Guid(IronServices.settings) // Settings
     ]);
     _isScanning = true;
   }
 
-  void stopScan() {
+  Future<void> stopScan() async {
     // Check if scanning
     if (!_isScanning) return;
-    _blueInstance.stopScan();
+    await FlutterBluePlus.stopScan();
     _isScanning = false;
   }
 
@@ -274,8 +274,8 @@ class IronProvider extends StateNotifier<IronState> {
 
     state = state.copyWith(
       isConnected: true,
-      name: device.name,
-      id: device.id.id,
+      name: device.localName,
+      id: device.remoteId.str,
       device: device,
     );
 
@@ -297,8 +297,8 @@ class IronProvider extends StateNotifier<IronState> {
     );
 
     // Listen for disconnect
-    device.state.listen((event) {
-      if (event == BluetoothDeviceState.disconnected) {
+    device.connectionState.listen((event) {
+      if (event == BluetoothConnectionState.disconnected) {
         state = state.copyWith(
           isConnected: false,
         );
@@ -348,7 +348,7 @@ class IronProvider extends StateNotifier<IronState> {
     }
   }
 
-  void setTemp(int temp){
+  void setTemp(int temp) {
     state = state.copyWith(
       data: state.data?.copyWith(
         setpoint: temp,

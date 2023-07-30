@@ -12,8 +12,6 @@ class DeviceList extends StatefulHookConsumerWidget {
 }
 
 class _DeviceListState extends ConsumerState<DeviceList> {
-  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
-
   Future<dynamic>? scanFuture;
 
   bool inProgress = false;

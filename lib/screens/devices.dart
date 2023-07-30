@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ironos_companion/providers/iron.dart';
 import 'package:ironos_companion/widgets/device_list.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rive/rive.dart';
 
 class DeviceSelectionScreen extends StatefulHookConsumerWidget {
@@ -12,6 +17,42 @@ class DeviceSelectionScreen extends StatefulHookConsumerWidget {
 }
 
 class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
+  PermissionStatus? bluetoothPerm;
+  PermissionStatus? locationPerm;
+
+  @override
+  void initState() {
+    super.initState();
+
+    getPerms();
+  }
+
+  Future<void> getPerms() async {
+    if (Platform.isAndroid) {
+      // Check if bluetooth is On
+      await FlutterBluePlus.turnOn();
+      await FlutterBluePlus.adapterState
+          .where((s) => s == BluetoothAdapterState.on)
+          .first;
+
+      var shouldRestart = false;
+      bluetoothPerm = await Permission.bluetoothScan.status;
+      while (bluetoothPerm != PermissionStatus.granted) {
+        shouldRestart = true;
+        bluetoothPerm = await Permission.bluetoothScan.request();
+      }
+      locationPerm = await Permission.locationWhenInUse.status;
+      while (locationPerm != PermissionStatus.granted) {
+        shouldRestart = true;
+        bluetoothPerm = await Permission.locationWhenInUse.request();
+      }
+      if (mounted && shouldRestart) {
+        await ref.read(ironProvider.notifier).stopScan();
+        await ref.read(ironProvider.notifier).startScan();
+      }
+    } else {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
