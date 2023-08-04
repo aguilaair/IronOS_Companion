@@ -39,11 +39,12 @@ dependencies:
   flutter_hooks: ^0.20.0
   animations: ^2.0.7
   rive: ^0.10.4
-  flutter_blue_plus: ^1.12.8
+  flutter_blue_plus: ^1.12.11
   permission_handler: ^10.2.0
   fl_chart: ^0.63.0
   hive_flutter: ^1.1.0
   sleek_circular_slider: ^2.0.1
+  device_info_plus: ^9.0.3
 
 dev_dependencies:
   flutter_test:

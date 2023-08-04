@@ -24,33 +24,7 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
   void initState() {
     super.initState();
 
-    getPerms();
-  }
-
-  Future<void> getPerms() async {
-    if (Platform.isAndroid) {
-      // Check if bluetooth is On
-      await FlutterBluePlus.turnOn();
-      await FlutterBluePlus.adapterState
-          .where((s) => s == BluetoothAdapterState.on)
-          .first;
-
-      var shouldRestart = false;
-      bluetoothPerm = await Permission.bluetoothScan.status;
-      while (bluetoothPerm != PermissionStatus.granted) {
-        shouldRestart = true;
-        bluetoothPerm = await Permission.bluetoothScan.request();
-      }
-      locationPerm = await Permission.locationWhenInUse.status;
-      while (locationPerm != PermissionStatus.granted) {
-        shouldRestart = true;
-        bluetoothPerm = await Permission.locationWhenInUse.request();
-      }
-      if (mounted && shouldRestart) {
-        await ref.read(ironProvider.notifier).stopScan();
-        await ref.read(ironProvider.notifier).startScan();
-      }
-    } else {}
+    ref.read(ironProvider.notifier).getPerms();
   }
 
   @override

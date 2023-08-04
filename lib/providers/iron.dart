@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -9,6 +11,7 @@ import 'package:ironos_companion/data/iron_states.dart';
 import 'package:ironos_companion/data/iron_uuids.dart';
 import 'package:ironos_companion/utils/iron_data_extract.dart';
 import 'package:ironos_companion/utils/line_chart.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../data/iron_data.dart';
 
@@ -352,6 +355,129 @@ class IronProvider extends StateNotifier<IronState> {
         setpoint: temp,
       ),
     );
+  }
+
+  Future<void> getPerms() async {
+    var shouldRestart = false;
+    PermissionStatus bluetoothPerm, locationPerm;
+
+    if (Platform.isAndroid) {
+      // Check if bluetooth is On
+      await FlutterBluePlus.turnOn();
+      await FlutterBluePlus.adapterState
+          .where((s) => s == BluetoothAdapterState.on)
+          .first;
+
+      // Get Android version
+
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      final version = androidInfo.version.sdkInt;
+      if (version <= 28) {
+        // Android 9 or lower
+        locationPerm = await Permission.location.status;
+        if (locationPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          locationPerm = await Permission.location.request();
+
+          while (locationPerm != PermissionStatus.granted) {
+            locationPerm = await Permission.location.request();
+          }
+        }
+      } else if (version <= 30) {
+        // Android 10 or 11
+        bluetoothPerm = await Permission.bluetooth.status;
+        locationPerm = await Permission.location.status;
+
+        if (bluetoothPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          bluetoothPerm = await Permission.bluetooth.request();
+
+          while (bluetoothPerm != PermissionStatus.granted) {
+            bluetoothPerm = await Permission.bluetooth.request();
+          }
+        }
+
+        if (locationPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          locationPerm = await Permission.location.request();
+
+          while (locationPerm != PermissionStatus.granted) {
+            locationPerm = await Permission.location.request();
+          }
+        }
+      } else {
+        // Android 12 or higher
+        bluetoothPerm = await Permission.bluetoothScan.status;
+        locationPerm = await Permission.bluetoothConnect.status;
+
+        if (bluetoothPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          bluetoothPerm = await Permission.bluetoothScan.request();
+
+          while (bluetoothPerm != PermissionStatus.granted) {
+            bluetoothPerm = await Permission.bluetoothScan.request();
+          }
+        }
+
+        if (locationPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          locationPerm = await Permission.bluetoothConnect.request();
+
+          while (locationPerm != PermissionStatus.granted) {
+            locationPerm = await Permission.bluetoothConnect.request();
+          }
+        }
+      }
+    } else {
+      // iOS
+
+      // Get ios version
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      final version = int.parse(iosInfo.systemVersion.split(".").first);
+
+      // Ios 13 and above
+      if (version >= 13) {
+        bluetoothPerm = await Permission.bluetooth.status;
+        locationPerm = await Permission.location.status;
+
+        if (bluetoothPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          bluetoothPerm = await Permission.bluetooth.request();
+
+          while (bluetoothPerm != PermissionStatus.granted) {
+            bluetoothPerm = await Permission.bluetooth.request();
+          }
+        }
+
+        if (locationPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          locationPerm = await Permission.location.request();
+
+          while (locationPerm != PermissionStatus.granted) {
+            locationPerm = await Permission.location.request();
+          }
+        }
+      } else {
+        // Ios 12 and below
+        locationPerm = await Permission.location.status;
+
+        if (locationPerm != PermissionStatus.granted) {
+          shouldRestart = true;
+          locationPerm = await Permission.location.request();
+
+          while (locationPerm != PermissionStatus.granted) {
+            locationPerm = await Permission.location.request();
+          }
+        }
+      }
+    }
+
+    if (shouldRestart && _isScanning) {
+      // Restart scan
+      await stopScan();
+    }
   }
 }
 
