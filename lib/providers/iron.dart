@@ -284,6 +284,19 @@ class IronProvider extends StateNotifier<IronState> {
   Future<bool> connect(BluetoothDevice device, {bool connect = true}) async {
     if (connect) {
       await device.connect();
+
+      device.connectionState.listen((event) {
+        print("Connection state: $event");
+        if (event == BluetoothConnectionState.disconnected) {
+          state = state.copyWith(
+            isConnected: false,
+          );
+          _timer?.cancel();
+
+          // Attempt to reconnect
+          attemptReconnect();
+        }
+      });
     }
 
     stopScan();

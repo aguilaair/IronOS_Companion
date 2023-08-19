@@ -58,6 +58,12 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
       isRetrieveing: true,
     );
     getSettings();
+
+    ref.listen(ironProvider, (previous, current) {
+      if (!current.isConnected && !(previous?.isConnected ?? true)) {
+        getSettings();
+      }
+    });
   }
 
   Ref ref;

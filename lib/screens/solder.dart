@@ -48,7 +48,7 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   const Thermostat(),

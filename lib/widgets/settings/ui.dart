@@ -15,6 +15,15 @@ class _UISettingsTileState extends ConsumerState<UISettingsTile> {
   @override
   void initState() {
     super.initState();
+
+    brightnessValue =
+        ref.read(ironSettingsProvider).settings!.uiSettings.screenBrightness;
+    logoDurationValue = ref
+        .read(ironSettingsProvider)
+        .settings!
+        .uiSettings
+        .bootLogoDuration
+        .inSeconds;
   }
 
   int brightnessValue = 0;
