@@ -284,19 +284,6 @@ class IronProvider extends StateNotifier<IronState> {
   Future<bool> connect(BluetoothDevice device, {bool connect = true}) async {
     if (connect) {
       await device.connect();
-
-      device.connectionState.listen((event) {
-        print("Connection state: $event");
-        if (event == BluetoothConnectionState.disconnected) {
-          state = state.copyWith(
-            isConnected: false,
-          );
-          _timer?.cancel();
-
-          // Attempt to reconnect
-          attemptReconnect();
-        }
-      });
     }
 
     stopScan();
@@ -326,16 +313,28 @@ class IronProvider extends StateNotifier<IronState> {
     );
 
     // Listen for disconnect
-    device.connectionState.listen((event) {
-      if (event == BluetoothConnectionState.disconnected) {
-        state = state.copyWith(
-          isConnected: false,
-        );
-        _timer?.cancel();
-      }
-    });
+    _disconnectListener = device.connectionState.listen(disconnectListener);
 
     return true;
+  }
+
+  StreamSubscription<BluetoothConnectionState>? _disconnectListener;
+
+  void disconnectListener(BluetoothConnectionState event) {
+    if (event == BluetoothConnectionState.disconnected) {
+      print("Disconnected");
+      state = state.copyWith(
+        isConnected: false,
+      );
+      _timer?.cancel();
+
+      // Attempt to reconnect
+      attemptReconnect();
+
+      // Ensure we don't have a listener
+      _disconnectListener?.cancel();
+      _disconnectListener = null;
+    }
   }
 
   Future<void> disconnect() async {

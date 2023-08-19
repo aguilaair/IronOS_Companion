@@ -86,35 +86,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    ironS.settings == null
-                        ? ironS.isRetrieveing
-                            ? const Column(
-                                children: [
-                                  CircularProgressIndicator(),
-                                  SizedBox(height: 10),
-                                  Text("Retrieving settings..."),
-                                ],
-                              )
-                            : Column(
-                                children: [
-                                  const Text("Failed to retrieve settings"),
-                                  TextButton(
-                                    onPressed: () {
-                                      ironSN.getSettings();
-                                    },
-                                    child: const Text("Retry"),
-                                  ),
-                                ],
-                              )
-                        : const Column(
+                    ironP.isConnected == false
+                        ? Column(
                             children: [
-                              SolderingSettingsTile(),
-                              SleepSettingsTile(),
-                              PowerSettingsTile(),
-                              UISettingsTile(),
-                              SizedBox(height: 50),
+                              const Text("Not connected to an iron"),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Go back"),
+                              ),
                             ],
                           )
+                        : ironS.settings == null
+                            ? ironS.isRetrieveing
+                                ? const Column(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(height: 10),
+                                      Text("Retrieving settings..."),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      const Text("Failed to retrieve settings"),
+                                      TextButton(
+                                        onPressed: () {
+                                          ironSN.getSettings();
+                                        },
+                                        child: const Text("Retry"),
+                                      ),
+                                    ],
+                                  )
+                            : const Column(
+                                children: [
+                                  SolderingSettingsTile(),
+                                  SleepSettingsTile(),
+                                  PowerSettingsTile(),
+                                  UISettingsTile(),
+                                  SizedBox(height: 50),
+                                ],
+                              )
                   ],
                 ),
               ),
