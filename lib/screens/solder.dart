@@ -48,6 +48,9 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  SizedBox(
+                    height: 10,
+                  ),
                   const Thermostat(),
                   Padding(
                     padding: const EdgeInsets.symmetric(

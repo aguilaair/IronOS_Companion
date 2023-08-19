@@ -17,6 +17,9 @@ class _UISettingsTileState extends ConsumerState<UISettingsTile> {
     super.initState();
   }
 
+  int brightnessValue = 0;
+  int logoDurationValue = 0;
+
   @override
   Widget build(BuildContext context) {
     final ironS = ref.watch(ironSettingsProvider);
@@ -125,12 +128,17 @@ class _UISettingsTileState extends ConsumerState<UISettingsTile> {
         ////////////////////////
         const Text("Screen Brightness"),
         Slider(
-          value: ironS.settings!.uiSettings.screenBrightness.toDouble(),
+          value: brightnessValue.toDouble(),
           min: 0,
           max: 101,
           label: ironS.settings!.uiSettings.screenBrightness.round().toString(),
-          onChanged: (value) {
+          onChangeEnd: (value) {
             ironSN.setScreenBrightness(value.toInt());
+          },
+          onChanged: (value) {
+            setState(() {
+              brightnessValue = value.toInt();
+            });
           },
         ),
         Center(
@@ -153,12 +161,16 @@ class _UISettingsTileState extends ConsumerState<UISettingsTile> {
         ////////////////////////
         const Text("Boot Logo Duration"),
         Slider(
-          value:
-              ironS.settings!.uiSettings.bootLogoDuration.inSeconds.toDouble(),
+          value: logoDurationValue.toDouble(),
           min: 0,
           max: 5,
-          onChanged: (value) {
+          onChangeEnd: (value) {
             ironSN.setBootLogoDuration(value.toInt());
+          },
+          onChanged: (value) {
+            setState(() {
+              logoDurationValue = value.toInt();
+            });
           },
         ),
         Center(

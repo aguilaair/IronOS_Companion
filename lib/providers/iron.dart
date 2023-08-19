@@ -262,8 +262,15 @@ class IronProvider extends StateNotifier<IronState> {
         Guid(IronServices.bulk), // Bulk data
         Guid(IronServices.settings) // Settings
       ]);
-    } catch (e) {
-      _isScanning = false;
+    } // Catch FlutterBluePlusError
+    on FlutterBluePlusException catch (error, _) {
+      if (error.errorCode == 1) {
+        // Scan already in progress error, should stop and restart scan
+        await FlutterBluePlus.stopScan();
+        startScan();
+      } else {
+        rethrow;
+      }
     }
   }
 

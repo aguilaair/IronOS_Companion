@@ -493,8 +493,8 @@ enum TempUnit {
 
 enum DisplayOrientation {
   right,
-  auto,
   left,
+  auto,
 }
 
 enum ScrollingSpeed {

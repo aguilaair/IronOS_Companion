@@ -43,11 +43,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
 
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             ironSN.saveToFlash();
           },
-          child: const Icon(Icons.save),
+          icon: const Icon(Icons.save),
+          label: const Text("Save to Flash"),
         ),
         body: CustomScrollView(
           slivers: [
