@@ -52,7 +52,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         body: CustomScrollView(
           slivers: [
             SliverAppBar.large(
-              title: const Text("Settings"),
+              //title: const Text("Settings"),
               flexibleSpace: FlexibleSpaceBar(
                 title: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -61,7 +61,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Text(
                       "Settings",
                     ),
-                    const SizedBox(height: 5),
                     Text(
                       "for ${ironP.name}",
                       style: Theme.of(context).textTheme.bodyMedium,

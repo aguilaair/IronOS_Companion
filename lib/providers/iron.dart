@@ -150,7 +150,8 @@ class IronProvider extends StateNotifier<IronState> {
         if (count > 10) {
           timer.cancel();
         }
-        if (await FlutterBluePlus.isOn) {
+        if (await FlutterBluePlus.adapterState.first ==
+            BluetoothAdapterState.on) {
           timer.cancel();
           startScan();
         }
@@ -250,13 +251,20 @@ class IronProvider extends StateNotifier<IronState> {
   List<BluetoothService>? services;
 
   Future<void> startScan() async {
+    await getPerms();
+
     // Check if scanning
     if (_isScanning) return;
-    await FlutterBluePlus.startScan(withServices: [
-      Guid(IronServices.bulk), // Bulk data
-      Guid(IronServices.settings) // Settings
-    ]);
     _isScanning = true;
+
+    try {
+      await FlutterBluePlus.startScan(withServices: [
+        Guid(IronServices.bulk), // Bulk data
+        Guid(IronServices.settings) // Settings
+      ]);
+    } catch (e) {
+      _isScanning = false;
+    }
   }
 
   Future<void> stopScan() async {
@@ -477,6 +485,7 @@ class IronProvider extends StateNotifier<IronState> {
     if (shouldRestart && _isScanning) {
       // Restart scan
       await stopScan();
+      await startScan();
     }
   }
 }

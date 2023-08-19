@@ -64,7 +64,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
         onChangeStart: (value) {
           HapticFeedback.lightImpact();
         },
-        innerWidget: (percentage) {
+        innerWidget: (setTemp) {
           return Padding(
             padding: const EdgeInsets.all(35),
             child: SleekCircularSlider(
@@ -115,7 +115,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                             child: Text(
                               '${ironP.data?.currentTemp.toInt()}',
                               style: TextStyle(
-                                fontSize: 40,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 color: !(isHeating(ironP.data?.currentMode ??
                                         OperatingMode.idle))
@@ -135,7 +135,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                             ),
                           ),
                           Text(
-                            percentage.toInt().toString(),
+                            setTemp.toInt().toString(),
                             style: const TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                           const Text(
                             '°C',
                             style: TextStyle(
-                              fontSize: 40,
+                              fontSize: 30,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

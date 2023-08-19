@@ -1,9 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:ironos_companion/providers/iron.dart';
 import 'package:ironos_companion/widgets/device_list.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rive/rive.dart';
@@ -21,19 +17,12 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
   PermissionStatus? locationPerm;
 
   @override
-  void initState() {
-    super.initState();
-
-    ref.read(ironProvider.notifier).getPerms();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: CustomScrollView(
       slivers: [
-        SliverAppBar.large(
-          title: const Text("Setup Companion"),
+        const SliverAppBar.large(
+          title: Text("Setup Companion"),
         ),
         SliverFillRemaining(
           child: Padding(
