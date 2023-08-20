@@ -205,11 +205,14 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                   ),
                                 ),
                                 const Padding(padding: EdgeInsets.all(5)),
-                                CircleAvatar(
-                                  backgroundColor: getColorFromMode(
-                                      ironP.data?.currentMode ??
-                                          OperatingMode.idle),
-                                  radius: 30,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: getColorFromMode(
+                                        ironP.data?.currentMode ??
+                                            OperatingMode.idle),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(15),
                                   child: Icon(
                                     getIconFromMode(ironP.data?.currentMode ??
                                         OperatingMode.idle),
@@ -270,22 +273,43 @@ class _ThermostatState extends ConsumerState<Thermostat> {
     );
   }
 
-  Color getColorFromMode(OperatingMode mode) {
+  LinearGradient getColorFromMode(OperatingMode mode) {
     switch (mode) {
       case OperatingMode.idle:
-        return Colors.grey.withOpacity(0.5);
+        return const LinearGradient(colors: [
+          Colors.grey,
+          Colors.blueGrey,
+        ]);
       case OperatingMode.soldering:
-        return Colors.orange.withOpacity(0.5);
+        return const LinearGradient(colors: [
+          Colors.red,
+          Colors.orange,
+        ]);
       case OperatingMode.boost:
-        return Colors.red.withOpacity(0.5);
+        return LinearGradient(colors: [
+          Colors.red,
+          Colors.red.shade900,
+        ]);
       case OperatingMode.settings:
-        return Colors.blue.withOpacity(0.5);
+        return const LinearGradient(colors: [
+          Colors.blue,
+          Colors.cyan,
+        ]);
       case OperatingMode.debug:
-        return Colors.green.withOpacity(0.5);
+        return LinearGradient(colors: [
+          Colors.green,
+          Colors.green.shade900,
+        ]);
       case OperatingMode.sleeping:
-        return Colors.purple.withOpacity(0.5);
+        return const LinearGradient(colors: [
+          Colors.purple,
+          Colors.blue,
+        ]);
       default:
-        return Colors.grey;
+        return const LinearGradient(colors: [
+          Colors.grey,
+          Colors.blueGrey,
+        ]);
     }
   }
 
