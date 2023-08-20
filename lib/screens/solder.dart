@@ -137,6 +137,7 @@ class _SolderPageState extends ConsumerState<SolderPage> {
                   Expanded(
                     child: LineChart(
                       ironN.chartData,
+                      duration: const Duration(milliseconds: 1000),
                     ),
                   ),
                 ],

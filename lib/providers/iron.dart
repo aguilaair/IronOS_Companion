@@ -322,7 +322,6 @@ class IronProvider extends StateNotifier<IronState> {
 
   void disconnectListener(BluetoothConnectionState event) {
     if (event == BluetoothConnectionState.disconnected) {
-      print("Disconnected");
       state = state.copyWith(
         isConnected: false,
       );
@@ -357,8 +356,8 @@ class IronProvider extends StateNotifier<IronState> {
         chars.addAll(value);
       }
     } catch (e) {
-      // Connection lost, disconnect
-      disconnect();
+      // Connection lost,
+      attemptReconnect();
       return;
     }
 
@@ -371,9 +370,12 @@ class IronProvider extends StateNotifier<IronState> {
 
     // Add to history, ensure we don't have more than 60 entries
     _history.add(ironData);
+
+    /*
     if (_history.length > 60) {
       _history.removeAt(0);
     }
+    */
   }
 
   void setTemp(int temp) {

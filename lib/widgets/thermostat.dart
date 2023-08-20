@@ -23,6 +23,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
   Widget build(BuildContext context) {
     //final ironN = ref.watch(ironProvider.notifier);
     final ironP = ref.watch(ironProvider);
+    final ironS = ref.watch(ironSettingsProvider);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SleekCircularSlider(
@@ -164,7 +165,10 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 padding: const EdgeInsets.all(15),
                               ),
                               onPressed: () {
-                                int newTemp = ironP.data!.setpoint - 2;
+                                int newTemp = ironP.data!.setpoint -
+                                    (ironS.settings?.solderingSettings
+                                            .tempChangeShortPress ??
+                                        1);
                                 if (newTemp <= 0) {
                                   newTemp = 0;
                                 }
@@ -174,7 +178,10 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 HapticFeedback.mediumImpact();
                               },
                               onLongPress: () {
-                                int newTemp = ironP.data!.setpoint - 10;
+                                int newTemp = ironP.data!.setpoint -
+                                    (ironS.settings?.solderingSettings
+                                            .tempChangeLongPress ??
+                                        10);
                                 if (newTemp <= 0) {
                                   newTemp = 0;
                                 }
@@ -219,7 +226,10 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 padding: const EdgeInsets.all(15),
                               ),
                               onPressed: () {
-                                int newTemp = ironP.data!.setpoint + 2;
+                                int newTemp = ironP.data!.setpoint +
+                                    (ironS.settings?.solderingSettings
+                                            .tempChangeShortPress ??
+                                        1);
                                 if (newTemp >= ironP.data!.maxTemp) {
                                   newTemp = ironP.data!.maxTemp;
                                 }
@@ -229,7 +239,10 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                                 HapticFeedback.mediumImpact();
                               },
                               onLongPress: () {
-                                int newTemp = ironP.data!.setpoint + 10;
+                                int newTemp = ironP.data!.setpoint +
+                                    (ironS.settings?.solderingSettings
+                                            .tempChangeLongPress ??
+                                        10);
                                 if (newTemp >= ironP.data!.maxTemp) {
                                   newTemp = ironP.data!.maxTemp;
                                 }

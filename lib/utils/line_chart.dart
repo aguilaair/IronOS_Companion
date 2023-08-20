@@ -9,6 +9,9 @@ LineChartData genLineChartData(List<FlSpot> spots, List<FlSpot> powerSpots,
     List<FlSpot> setpointSpots, IronData? data, int maxTemp) {
   return LineChartData(
     minY: 0,
+
+    // Only show the last 60 data points using setpointSpots.length
+    minX: max(0, spots.length - 60).toDouble(),
     maxY:
         max((data?.setpoint.toDouble() ?? 400) * 1.1, maxTemp.toDouble() * 1.1),
     lineTouchData: const LineTouchData(enabled: true),

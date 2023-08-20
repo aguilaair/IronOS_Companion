@@ -55,20 +55,29 @@ class IronSettingsState {
 class IronSettingsProvider extends StateNotifier<IronSettingsState> {
   IronSettingsProvider(this.ref) : super(IronSettingsState()) {
     state = IronSettingsState(
-      isRetrieveing: true,
+      isRetrieveing: false,
     );
-    getSettings();
 
-    ref.listen(ironProvider, (previous, current) {
-      if (current.isConnected && !(previous?.isConnected ?? true)) {
-        getSettings();
-      }
-    });
+    ref.listen(ironProvider, connectionListener);
   }
 
   Ref ref;
 
+  void connectionListener(IronState? previous, IronState current) {
+    final isConnectedBack =
+        current.isConnected && !(previous?.isConnected ?? true);
+    final isConnectedAndNotRetrieving =
+        current.isConnected && !state.isRetrieveing && state.settings == null;
+    if (isConnectedBack || isConnectedAndNotRetrieving) {
+      getSettings();
+    }
+  }
+
   Future<void> getSettings() async {
+    state = state.copyWith(
+      isRetrieveing: true,
+    );
+
     final ironN = ref.read(ironProvider.notifier);
     final iron = ref.read(ironProvider);
 
@@ -90,23 +99,40 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
       // Get the services
       final settingsService = ironN.services!.firstWhere(
           (element) => element.uuid.toString() == IronServices.settings);
+      final bulkService = ironN.services!.firstWhere(
+          (element) => element.uuid.toString() == IronServices.bulk);
 
       // Get Power Settings
       PowerSettings powerSettings = await _getPowerSettings(settingsService);
+
+      // Refresh the iron provider
+      await ironN.poll(bulkService);
 
       // Get Sleep Settings
       SolderingSettings solderingSettings =
           await _getSolderingSettings(settingsService);
 
+      // Refresh the iron provider
+      await ironN.poll(bulkService);
+
       // Get UI Settings
       UISettings uiSettings = await _getUISettings(settingsService);
+
+      // Refresh the iron provider
+      await ironN.poll(bulkService);
 
       // Get advanced settings
       AdvancedSettings? advancedSettings =
           await _getAdvancedSettings(settingsService);
 
+      // Refresh the iron provider
+      await ironN.poll(bulkService);
+
       // Get Sleep Settings
       SleepSettings? sleepSettings = await _getSleepSettings(settingsService);
+
+      // Refresh the iron provider
+      await ironN.poll(bulkService);
 
       state = state.copyWith(
         settings: IronSettings(
@@ -120,6 +146,7 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
       );
     } catch (e) {
       state = IronSettingsState.error();
+      rethrow;
     }
 
     ironN.resumeTimer();
@@ -386,10 +413,14 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
 
   // Set data - write to f6d7ffff-5a10-4eba-aa55-33e27f9bc533 value 1 to save settings
   Future<void> setTemp(int temp) async {
+    ref.read(ironProvider.notifier).pauseTimer();
+
     state = state.copyWith(
       settings: state.settings?.copyWith(
-          solderingSettings:
-              state.settings?.solderingSettings.copyWith(solderingTemp: temp)),
+        solderingSettings: state.settings?.solderingSettings.copyWith(
+          solderingTemp: temp,
+        ),
+      ),
     );
 
     ref.read(ironProvider.notifier).setTemp(temp);
@@ -407,6 +438,8 @@ class IronSettingsProvider extends StateNotifier<IronSettingsState> {
     view.setUint16(0, temp, Endian.little);
 
     await sendBlePacket(tempCharacteristic, view.buffer.asUint8List(), 0, 3);
+
+    ref.read(ironProvider.notifier).resumeTimer();
   }
 
   Future<void> setBoost(int temp) async {
