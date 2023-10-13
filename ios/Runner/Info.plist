@@ -48,11 +48,11 @@
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 		<key>NSBluetoothAlwaysUsageDescription</key>
-		<string>Need BLE permission to detect the iron</string>
+		<string>Need Location permission to detect iron and read the data from it to disaply it</string>
 		<key>NSBluetoothPeripheralUsageDescription</key>
-		<string>Need BLE permission to detect the iron</string>
+		<string>Need Location permission to detect iron and read the data from it to disaply it.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Need Location permission to detect iron</string>
+		<string>Need Location permission to detect iron and read the data from it to disaply it.</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>
