@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ironos_companion/providers/iron.dart';
 import 'package:ironos_companion/screens/devices.dart';
-import 'package:ironos_companion/screens/settings.dart';
 import 'package:ironos_companion/screens/solder.dart';
 
 void main() async {
@@ -65,9 +64,9 @@ class AppWrapper extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ironP = ref.read(ironProvider);
     if (ironP.id.isEmpty) {
-      return const SettingsScreen();
+      return const DeviceSelectionScreen();
     } else {
-      return const SettingsScreen();
+      return const SolderPage();
     }
   }
 }
