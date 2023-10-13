@@ -48,7 +48,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ironSN.saveToFlash();
           },
           icon: const Icon(Icons.save),
-          label: const Text("Save to Flash"),
+          label: const Text(
+            "Save to Flash",
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+          ),
         ),
         body: CustomScrollView(
           slivers: [
@@ -94,7 +97,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text("Go back"),
+                                child: const Text(
+                                  "Go back",
+                                  style: TextStyle(
+                                      fontSize: 15),
+                                ),
                               ),
                             ],
                           )
