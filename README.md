@@ -3,6 +3,8 @@
 
 ![IronOS Companion](https://raw.githubusercontent.com/aguilaair/IronOS_Companion/main/marketing/Logo%20Beta.svg)
 
+<a href='https://l.edm.sh/ironOS-iOS'><img alt='Get it on the App Store' src='https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg' height=75/></a> 
+
 Welcome to the IronOS Companion repository. This repository contains the source code for the IronOS Companion application. IronOS Companion is a mobile application that allows you to control your IronOS-powered devices from your phone.
 
 It is based on Material 3 and has beautiful built-in dark and light themes.
