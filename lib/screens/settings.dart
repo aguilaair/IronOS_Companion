@@ -60,7 +60,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               flexibleSpace: FlexibleSpaceBar(
                 title: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Text(
                       "Settings",
@@ -72,7 +72,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                 ),
                 background: Align(
-                  alignment: Alignment.bottomLeft,
+                  alignment: Alignment.bottomRight,
                   child: Icon(
                     Icons.bluetooth_connected,
                     size: 150,
@@ -99,8 +99,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 },
                                 child: const Text(
                                   "Go back",
-                                  style: TextStyle(
-                                      fontSize: 15),
+                                  style: TextStyle(fontSize: 15),
                                 ),
                               ),
                             ],

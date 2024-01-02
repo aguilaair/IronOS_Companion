@@ -114,7 +114,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
                             curve: Curves.easeInOut,
                             duration: const Duration(milliseconds: 200),
                             child: Text(
-                              '${ironP.data?.currentTemp.toInt()}',
+                              '${ironP.data?.currentTemp != null ? ironP.data?.currentTemp.toInt() : "..."}',
                               style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
