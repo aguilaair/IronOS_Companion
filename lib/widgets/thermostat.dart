@@ -51,7 +51,7 @@ class _ThermostatState extends ConsumerState<Thermostat> {
           ),
           startAngle: 130,
           angleRange: 280,
-          size: 300,
+          size: 330,
           animationEnabled: false,
         ),
         max: max(ironP.data?.maxTemp.toDouble() ?? 400,
